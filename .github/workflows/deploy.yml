@@ -1,0 +1,43 @@
+name: Deploy to Yandex Object Storage
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: yandex-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: github.ref == 'refs/heads/main' && vars.YC_DEPLOY_ENABLED == 'true'
+    environment: production
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '22'
+      - name: Build and check release
+        run: |
+          npm run build
+          npm run check
+          npm run check:release
+      - name: Upload static files to the Russian hosting
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.YC_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.YC_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ru-central1
+          AWS_EC2_METADATA_DISABLED: 'true'
+          YC_BUCKET: ${{ vars.YC_BUCKET }}
+        run: |
+          set -euo pipefail
+          test -n "$AWS_ACCESS_KEY_ID" || { echo 'YC_ACCESS_KEY_ID is required'; exit 1; }
+          test -n "$AWS_SECRET_ACCESS_KEY" || { echo 'YC_SECRET_ACCESS_KEY is required'; exit 1; }
+          [[ "$YC_BUCKET" =~ ^[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]$ ]] || { echo 'Set YC_BUCKET to a valid bucket name'; exit 1; }
+          aws configure set default.s3.addressing_style path
+          aws --endpoint-url=https://storage.yandexcloud.net s3 cp dist/ "s3://$YC_BUCKET/" --recursive --exclude 'index.html' --cache-control 'no-cache' --only-show-errors
+          aws --endpoint-url=https://storage.yandexcloud.net s3 cp dist/index.html "s3://$YC_BUCKET/index.html" --content-type 'text/html; charset=utf-8' --cache-control 'no-cache' --only-show-errors

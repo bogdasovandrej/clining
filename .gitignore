@@ -1,0 +1,14 @@
+dist/
+assets/hero-interior.png
+node_modules/
+.DS_Store
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+credentials.json
+service-account*.json
+.aws/
+.yc/
+*.log

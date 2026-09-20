@@ -1,0 +1,11 @@
+{
+  "name": "chisto-ekb",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "check": "node scripts/check.mjs",
+    "check:release": "node scripts/check-release.mjs"
+  }
+}
