@@ -1,5 +1,8 @@
 {
   "brand": "НавитЭко",
+  "domainLatin": "naviteco",
+  "pricesConfirmed": true,
+  "notificationChannels": ["telegram", "max"],
   "preview": true,
   "siteUrl": null,
   "city": "Екатеринбург",

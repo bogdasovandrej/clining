@@ -7,6 +7,9 @@ const required = ["index.html","concept.html","privacy.html","robots.txt","sitem
 for (const file of required) await access(new URL(file, dist));
 assert.equal(data.services.length, 10, "All ten requested services must be included");
 assert.equal(new Set(data.services.map(s=>s.slug)).size, data.services.length, "Service slugs must be unique");
+assert.equal(data.domainLatin, "naviteco", "Confirmed brand transliteration must stay in the catalog");
+assert.equal(data.pricesConfirmed, true, "Catalog prices must be marked as confirmed");
+assert.deepEqual([...data.notificationChannels].sort(), ["max", "telegram"], "Both notification channels are required");
 const format = n => new Intl.NumberFormat("ru-RU").format(n);
 for (const s of data.services) {
   const html = await readFile(new URL(s.slug+".html",dist),"utf8");
@@ -25,6 +28,7 @@ if (data.preview) {
   assert.ok(!/<(?:script|img)[^>]+src="(?!data:)/.test(portable), "Portable scripts/images must not depend on a server");
   assert.ok(!/rel="stylesheet"/.test(portable), "Portable styles must be inline");
   assert.ok(portable.includes('id="page-concept"') && portable.includes('id="page-privacy"'));
+  assert.ok(portable.includes("naviteco.ru"), "Confirmed domain spelling must be visible in the concept");
   assert.ok(/name="name"[^>]+disabled/.test(portable) && /name="phone"[^>]+disabled/.test(portable), "Preview must not collect contact data");
   assert.equal(await readFile(new URL("robots.txt",dist),"utf8"),"User-agent: *\nDisallow: /\n");
 }
