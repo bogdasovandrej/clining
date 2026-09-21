@@ -1,104 +1,99 @@
 (() => {
-  const config = window.SITE_CONFIG || {};
   const by = (selector, root = document) => root.querySelector(selector);
   const all = (selector, root = document) => [...root.querySelectorAll(selector)];
-  const request = async (path, options = {}) => {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 9000);
-    try {
-      const response = await fetch(`${config.apiBase || ""}${path}`, {
-        ...options,
-        signal: controller.signal,
-        headers: { "Content-Type": "application/json", ...(options.headers || {}) }
-      });
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      return await response.json();
-    } finally { clearTimeout(timeout); }
+  const menu = by(".nav-toggle");
+  const nav = by("#navigation");
+  const closeMenu = () => {
+    nav?.classList.remove("open");
+    menu?.setAttribute("aria-expanded", "false");
   };
-
-  const navToggle = by(".nav-toggle");
-  if (navToggle) navToggle.addEventListener("click", () => {
-    const nav = by(".site-header nav");
+  menu?.addEventListener("click", () => {
     const open = nav.classList.toggle("open");
-    navToggle.setAttribute("aria-expanded", String(open));
+    menu.setAttribute("aria-expanded", String(open));
   });
+  all("#navigation a").forEach(link => link.addEventListener("click", closeMenu));
+  document.addEventListener("keydown", event => {
+    if (event.key === "Escape") closeMenu();
+  });
+
+  let toastTimer;
+  const notify = message => {
+    const toast = by(".toast");
+    toast.textContent = message;
+    toast.hidden = false;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { toast.hidden = true; }, 6500);
+  };
+  all("[data-demo]").forEach(button => button.addEventListener("click", () => notify(button.dataset.demo)));
+
+  // The same pages work online and inside the portable, network-free review file.
+  all("[data-page]").forEach(link => link.addEventListener("click", event => {
+    const dialog = document.getElementById("page-" + link.dataset.page);
+    if (!dialog) return;
+    event.preventDefault();
+    all("dialog[open]").forEach(open => open.close());
+    dialog.showModal();
+  }));
+  all(".dialog-close").forEach(button => button.addEventListener("click", () => button.closest("dialog").close()));
+  all("dialog").forEach(dialog => {
+    dialog.addEventListener("click", event => {
+      if (event.target === dialog) dialog.close();
+    });
+    all('a[href^="#"]', dialog).forEach(link => {
+      if (!link.dataset.page) link.addEventListener("click", () => dialog.close());
+    });
+  });
+
+  all("[data-filter]").forEach(button => button.addEventListener("click", () => {
+    all("[data-filter]").forEach(other => {
+      const active = other === button;
+      other.classList.toggle("active", active);
+      other.setAttribute("aria-pressed", String(active));
+    });
+    all(".service-card").forEach(card => {
+      card.hidden = button.dataset.filter !== "all" && card.dataset.category !== button.dataset.filter;
+    });
+  }));
 
   const calculator = by(".calculator");
+  const booking = by("#booking-form");
   if (calculator) {
+    const unitServices = new Set(["himchistka-kresel", "himchistka-divanov", "himchistka-matrasov"]);
     const estimate = () => {
-      const service = by("select[name=service]", calculator).selectedOptions[0];
-      const base = Number(service.dataset.price || 0);
-      const area = Math.max(1, Number(by("[name=area]", calculator).value || 1));
-      const rooms = Number(by("[name=rooms]", calculator).value || 1);
-      const extras = (by("[name=windows]", calculator).checked ? 500 : 0) + (by("[name=heavy]", calculator).checked ? Math.round(base * .2) : 0) + (by("[name=urgent]", calculator).checked ? Math.round(base * .15) : 0);
-      const total = Math.max(base, Math.round(((base + Math.max(0, area - 40) * 45) * rooms + extras) / 100) * 100);
-      by("output span", calculator).textContent = new Intl.NumberFormat("ru-RU").format(total);
-      const bookingService = by("#booking-form [name=service]");
-      if (bookingService) bookingService.value = service.value;
+      const selected = by("[name=service]", calculator).selectedOptions[0];
+      const isUnit = unitServices.has(selected.value);
+      by(".quantity-field", calculator).hidden = !isUnit;
+      by(".form-grid", calculator).hidden = isUnit;
+      const quantity = Number(by("[name=quantity]", calculator).value);
+      const valid = !isUnit || (Number.isInteger(quantity) && quantity >= 1 && quantity <= 20);
+      const amount = Number(selected.dataset.price) * (isUnit ? quantity : 1);
+      by("#estimate", calculator).textContent = valid ? new Intl.NumberFormat("ru-RU").format(amount) : "—";
+      by(".calculator-explanation", calculator).textContent = !valid
+        ? "Укажите целое количество предметов от 1 до 20."
+        : isUnit
+          ? "Стартовая цена × количество предметов. Размер, материал и загрязнение уточним по фото."
+          : "Площадь и особенности помогают уточнить задачу. Доплаты не рассчитаны: правила согласуем с мастером.";
+      by(".calculator-book", calculator).setAttribute("aria-disabled", String(!valid));
+      if (booking) by("[name=service]", booking).value = selected.value;
     };
-    all("input, select", calculator).forEach((input) => input.addEventListener("input", estimate));
+    calculator.addEventListener("submit", event => event.preventDefault());
+    all("input, select", calculator).forEach(input => input.addEventListener("input", estimate));
+    by(".calculator-book", calculator).addEventListener("click", event => {
+      if (event.currentTarget.getAttribute("aria-disabled") === "true") {
+        event.preventDefault();
+        by("[name=quantity]", calculator).reportValidity();
+      }
+    });
     estimate();
   }
-
-  const booking = by("#booking-form");
-  if (!booking) return;
-  const date = by("[name=date]", booking);
-  const slot = by("[name=slot]", booking);
-  const status = by(".form-status", booking);
-  const setStatus = (message, kind = "") => { status.textContent = message; status.className = `form-status ${kind}`; };
-  const localISODate = () => {
-    const now = new Date(); now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-    return now.toISOString().slice(0, 10);
-  };
-  date.min = localISODate();
-  const fallback = "Попробуйте ещё раз или позвоните / напишите — мы запишем вас вручную.";
-
-  const loadSlots = async () => {
-    slot.disabled = true;
-    slot.innerHTML = "<option>Загружаем свободное время…</option>";
-    if (!date.value) return;
-    if (!config.bookingEnabled || !config.apiBase) {
-      slot.innerHTML = "<option>Онлайн-запись скоро откроется</option>";
-      setStatus("Запись настраивается. Пока можно связаться по телефону или в мессенджере.", "error");
-      return;
-    }
-    try {
-      const data = await request(`/slots?date=${encodeURIComponent(date.value)}&service=${encodeURIComponent(by("[name=service]", booking).value)}`);
-      if (!Array.isArray(data.slots) || data.slots.length === 0) throw new Error("No slots");
-      slot.innerHTML = data.slots.map((value) => `<option value="${String(value).replace(/"/g, "&quot;")}">${String(value)}</option>`).join("");
-      slot.disabled = false;
-      setStatus("");
-    } catch (error) {
-      slot.innerHTML = "<option>Не удалось получить время</option>";
-      setStatus(`Не удалось загрузить свободные окна. ${fallback}`, "error");
-    }
-  };
-  date.addEventListener("change", loadSlots);
-  by("[name=service]", booking).addEventListener("change", () => date.value && loadSlots());
-
-  booking.addEventListener("submit", async (event) => {
-    event.preventDefault();
-    if (!booking.reportValidity()) return;
-    if (!config.bookingEnabled || !config.apiBase) {
-      setStatus(`Онлайн-запись ещё не подключена. ${fallback}`, "error");
-      return;
-    }
-    const button = by("button[type=submit]", booking);
-    const payload = Object.fromEntries(new FormData(booking));
-    button.disabled = true;
-    button.textContent = "Отправляем…";
-    setStatus("Проверяем и создаём запись…");
-    try {
-      const answer = await request("/book", { method: "POST", body: JSON.stringify(payload) });
-      // Never treat a network response or a generic `ok` as a booking confirmation.
-      if (answer?.ok !== true || !answer?.id || !answer?.start || !answer?.end) throw new Error("Invalid booking response");
-      setStatus(`Готово! Запись №${answer.id} подтверждена на ${answer.start}–${answer.end}.`, "success");
-      booking.reset(); slot.disabled = true; slot.innerHTML = "<option>Сначала выберите дату</option>";
-    } catch (error) {
-      setStatus(`Запись не создана. ${fallback}`, "error");
-    } finally {
-      button.disabled = false;
-      button.innerHTML = "Отправить заявку <span>→</span>";
-    }
-  });
+  if (booking) {
+    const date = by("[name=date]", booking);
+    const parts = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Yekaterinburg", year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(new Date());
+    const part = type => parts.find(p => p.type === type).value;
+    date.min = part("year") + "-" + part("month") + "-" + part("day");
+    booking.addEventListener("submit", event => {
+      event.preventDefault();
+      by(".form-status", booking).textContent = "Это демонстрация: заявка не отправлена. После согласования подключим запись и подтверждение от мастера.";
+    });
+  }
 })();

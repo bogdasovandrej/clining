@@ -1,8 +1,6 @@
-/** Public, non-secret configuration. Replace these values before release. */
+// Public settings only. Tokens and other secrets must never be stored here.
 window.SITE_CONFIG = {
-  apiBase: "", // e.g. https://api.example.ru — Yandex public gateway, never workers.dev
+  preview: true,
   bookingEnabled: false,
-  phone: "+70000000000",
-  telegram: "https://t.me/USERNAME",
-  max: "https://max.ru/USERNAME"
+  apiBase: ""
 };

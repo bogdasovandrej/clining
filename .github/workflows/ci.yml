@@ -26,11 +26,18 @@ jobs:
           node --check scripts/build.mjs
           node --check scripts/check.mjs
           node --check scripts/check-release.mjs
+          node --check scripts/serve.mjs
           npm run build
           npm run check
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: site-build
           path: dist/
+          if-no-files-found: error
+          retention-days: 7
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: client-review
+          path: review/
           if-no-files-found: error
           retention-days: 7

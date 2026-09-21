@@ -5,7 +5,7 @@ import { readFile, readdir } from "node:fs/promises";
 const dist = new URL("../dist/", import.meta.url);
 const files = (await readdir(dist)).filter((name) => name.endsWith(".html") || name.endsWith(".xml") || name === "robots.txt");
 files.push("assets/config.js");
-const placeholders = /example\.ru|USERNAME|\+7\s*\(000\)|\+70000000000|\[ФИО\]|\[ИНН\]|\[email\]|\[адрес\s*\/\s*email\]/i;
+const placeholders = /example\.(ru|invalid)|USERNAME|\+7\s*\(000\)|\+70000000000|\[ФИО\]|\[ИНН\]|\[email\]|\[адрес\s*\/\s*email\]|Концепция 01|Демонстрационный режим|preview\s*:\s*true/i;
 const blocked = [];
 for (const file of files) {
   if (placeholders.test(await readFile(new URL(file, dist), "utf8"))) blocked.push(file);
