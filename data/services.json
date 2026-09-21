@@ -6,11 +6,20 @@
   "preview": true,
   "siteUrl": null,
   "city": "Екатеринбург",
-  "phone": "+7 (000) 000-00-00",
+  "operatorStatus": "Самозанятая специалистка",
+  "phone": "+7 992 007-01-81",
+  "serviceArea": "Все районы Екатеринбурга",
   "telegram": "https://t.me/USERNAME",
   "max": "https://max.ru/USERNAME",
   "email": "hello@example.ru",
   "hours": "Ежедневно, 8:00–20:00",
+  "bookingMode": "requested_date_then_confirmation",
+  "assessment": {
+    "podderzhivayushchaya-uborka": "photo",
+    "generalnaya-uborka": "onsite_inspection",
+    "posle-remonta": "onsite_inspection"
+  },
+  "reviewsAvailable": false,
   "services": [
     {"slug":"podderzhivayushchaya-uborka","name":"Поддерживающая уборка","short":"Регулярная чистота без лишней суеты","price":2500,"duration":"2–4 часа","description":"Освежим квартиру и наведём порядок в ключевых зонах.","includes":["Пыль на доступных поверхностях","Пылесос и влажная уборка пола","Кухня и санузел","Зеркала и видимые поверхности"]},
     {"slug":"generalnaya-uborka","name":"Генеральная уборка","short":"Глубокая уборка каждого помещения","price":5000,"duration":"4–8 часов","description":"Когда хочется вернуть дому ощущение нового начала.","includes":["Всё из поддерживающей уборки","Кухня снаружи, фартук, техника","Санузел и сложные загрязнения","Двери, выключатели, плинтусы"]},

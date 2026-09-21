@@ -33,6 +33,7 @@ img { max-width: 100%; display: block; }
 .brand-dot { color: var(--blue); }
 .site-header nav { display: flex; align-items: center; gap: 28px; font-size: 13px; }
 .site-header nav > a:not(.button):hover { color: var(--blue); }
+.phone-link { color: var(--blue); font-weight: 700; white-space: nowrap; }
 .nav-toggle { display: none; border: 1px solid var(--line); background: white; border-radius: 10px; padding: 10px; font-size: 12px; }
 .button { display: inline-flex; align-items: center; justify-content: center; gap: 25px; min-height: 54px; padding: 15px 23px; border: 1px solid var(--blue); background: var(--blue); border-radius: 10px; color: white; font-weight: 700; font-size: 14px; line-height: 1.4; transition: background .18s, transform .18s; }
 .button:hover { background: var(--blue-dark); transform: translateY(-1px); }
@@ -155,6 +156,7 @@ footer .brand-dot { color: #81acfa; }
 footer .eyebrow { color: #b6c9e8; margin-bottom: 16px; }
 footer p { font-size: 13px; color: #c4d1e5; margin: 18px 0 14px; }
 footer a:not(.brand) { display: block; font-size: 12px; margin-bottom: 12px; }
+footer .footer-phone { color: white; font-size: 20px; font-weight: 700; margin: 11px 0 15px; }
 footer small { display: block; font-size: 10px; color: #adbed6; margin-top: 16px; }
 .footer-bottom { margin-top: 47px; border-top: 1px solid #ffffff22; padding-top: 20px; display: flex; justify-content: space-between; gap: 20px; font-size: 10px; color: #b6c9e8; }
 .mobile-cta { display: none; }
