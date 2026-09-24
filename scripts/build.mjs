@@ -1,95 +1,84 @@
-import { cp, mkdir, readFile, readdir, writeFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 
 const root = new URL("../", import.meta.url);
 const out = new URL("../dist/", import.meta.url);
 const data = JSON.parse(await readFile(new URL("data/services.json", root), "utf8"));
-const preview = data.preview !== false;
-const safe = (v) => String(v).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c]);
-const money = n => new Intl.NumberFormat("ru-RU").format(n);
-const phoneHref = "tel:+"+String(data.phone).replace(/\D/g, "");
-const group = s => s.slug.startsWith("himchistka") ? "furniture" : ["ozonirovanie", "eco-uborka"].includes(s.slug) ? "special" : "cleaning";
-const mark = '<img src="./assets/brand-mark.svg" width="36" height="36" alt="">';
-const brand = () => '<a class="brand" href="./index.html" aria-label="'+safe(data.brand)+' — на главную">'+mark+'<span>'+safe(data.brand)+'</span></a>';
-const options = () => data.services.map(s => '<option value="'+s.slug+'" data-price="'+s.price+'">'+safe(s.name)+'</option>').join("");
-const pageLink = (slug, label, cls="") => '<a class="'+cls+'" href="./'+slug+'.html" data-page="'+slug+'">'+label+'</a>';
-const faq = [
-  ["Цена на сайте окончательная?", "На сайте указана стартовая стоимость. Поддерживающую уборку предварительно оцениваем по фото, генеральную и уборку после ремонта — после осмотра. Итоговую цену согласуем до начала работ."],
-  ["Нужно покупать средства и инвентарь?", "Необходимые средства и оборудование привозим с собой. Заранее обсудим доступ к воде и электричеству, деликатные поверхности и ваши пожелания."],
-  ["Сколько занимает уборка и химчистка?", "Поддерживающая уборка ориентировочно занимает 2–4 часа, генеральная — 4–8, после ремонта — 6–10. Время чистки и высыхания мебели уточняется отдельно."],
-  ["Можно ли оставаться дома с детьми и животными?", "Это зависит от выбранных средств и вида работ. Обсудим ограничения заранее. На время озонирования в помещении не должно быть людей, животных и растений; возвращение — после проветривания и по инструкции оборудования."],
-  ["Все пятна точно исчезнут?", "Результат зависит от возраста пятна, ткани и предыдущих обработок. Перед работой осмотрим материал и объясним возможные ограничения."],
-  ["Как подготовить квартиру?", "Уберите личные вещи и документы, обеспечьте доступ к поверхностям и расскажите о деликатных материалах. Остальные детали согласуем перед визитом."]
-];
-const services = () => data.services.map((s,i) => '<article class="service-card" id="service-'+s.slug+'" data-category="'+group(s)+'"><div class="card-top"><span class="service-num">'+String(i+1).padStart(2,"0")+'</span><span>'+safe(s.duration)+'</span></div><h3>'+safe(s.name)+'</h3><p>'+safe(s.short)+'</p><div class="price">от '+money(s.price)+' <span>₽</span></div><details><summary>Что входит <span aria-hidden="true">+</span></summary><ul>'+s.includes.map(x=>'<li>'+safe(x)+'</li>').join("")+'</ul>'+pageLink(s.slug,"Подробнее об услуге →","text-link")+'</details></article>').join("");
+const escape = value => String(value).replace(/[&<>"']/g, char => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[char]);
+const money = amount => new Intl.NumberFormat("ru-RU").format(amount);
+const phoneHref = `tel:+${data.phone.replace(/\D/g, "")}`;
+const price = service => service.price === null
+  ? "Стоимость по запросу"
+  : service.unit === "₽/час"
+    ? `${money(service.price)} ₽/час`
+    : `от ${money(service.price)} ₽`;
+const category = service => service.slug.startsWith("himchistka") ? "furniture"
+  : ["master-na-chas", "ozonirovanie"].includes(service.slug) ? "other" : "home";
+const cards = data.services.map(service => `
+  <article class="service-card" data-category="${category(service)}">
+    <h3>${escape(service.name)}</h3>
+    <p class="price">${escape(price(service))}</p>
+  </article>`).join("");
+const html = `<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#2458d3">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <meta name="description" content="НавитЭко: уборка квартир, химчистка мебели, глажка и бытовые услуги в Екатеринбурге. Услуги и цены, график и телефон.">
+  <title>НавитЭко — уборка и химчистка в Екатеринбурге</title>
+  <link rel="icon" href="./assets/brand-mark.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./assets/site.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">К содержанию</a>
+  <header class="site-header container">
+    <a class="brand" href="#main" aria-label="НавитЭко — на главную"><img src="./assets/brand-mark.svg" width="34" height="34" alt=""><span>НавитЭко</span></a>
+    <nav aria-label="Основная навигация"><a href="#services">Услуги и цены</a><a href="#how">Как записаться</a><a class="header-phone" href="${phoneHref}">${escape(data.phone)}</a></nav>
+  </header>
+  <main id="main">
+    <section class="hero container">
+      <p class="eyebrow">Екатеринбург · все районы</p>
+      <h1>Уборка квартир<br>и химчистка мебели</h1>
+      <p class="hero-lead">Поддерживающая и генеральная уборка, уборка после ремонта, чистка мебели и дополнительные услуги по дому. Работаем ежедневно с 8:00 до 20:00.</p>
+      <div class="hero-actions"><a class="button" href="#services">Посмотреть цены</a><a class="button button-outline" href="${phoneHref}">Позвонить</a></div>
+    </section>
+    <div class="facts container"><span>Самозанятая специалистка</span><span>Выезд по всему Екатеринбургу</span><span>Стоимость согласуем до работы</span></div>
+    <section class="section container" id="services">
+      <div class="section-heading"><p class="eyebrow">Услуги и цены</p><h2>Чем можем помочь</h2><p>Указаны стартовые цены. Итоговая стоимость зависит от объёма и состояния помещения или вещи.</p></div>
+      <div class="filters" role="group" aria-label="Категории услуг"><button type="button" class="active" data-filter="all" aria-pressed="true">Все услуги</button><button type="button" data-filter="home" aria-pressed="false">Уборка и дом</button><button type="button" data-filter="furniture" aria-pressed="false">Химчистка</button><button type="button" data-filter="other" aria-pressed="false">Другие услуги</button></div>
+      <div class="service-grid">${cards}</div>
+      <p class="note">Глажка — 500 ₽ за час. Стоимость услуги «Мастер на час» уточняйте по телефону.</p>
+    </section>
+    <section class="section process-section" id="how"><div class="container">
+      <p class="eyebrow">Как записаться</p><h2>Выберите удобную дату</h2>
+      <div class="steps"><div><span>01</span><h3>Позвоните</h3><p>Расскажите, какая услуга нужна, и назовите желаемую дату.</p></div><div><span>02</span><h3>Оценим работу</h3><p>Поддерживающую уборку оценим по фото. Перед генеральной и послестроительной приедем на осмотр.</p></div><div><span>03</span><h3>Подтвердим визит</h3><p>Согласуем стоимость и время. После подтверждения добавим запись в календарь.</p></div></div>
+      <a class="button" href="${phoneHref}">Позвонить ${escape(data.phone)}</a>
+    </div></section>
+    <section class="section container contact-section" id="contacts"><p class="eyebrow">Контакты</p><h2>НавитЭко</h2><p>Выезжаем во все районы Екатеринбурга. Ежедневно, 8:00–20:00.</p><a class="contact-phone" href="${phoneHref}">${escape(data.phone)}</a><p>Позвоните, чтобы обсудить задачу и желаемую дату.</p></section>
+  </main>
+  <footer><div class="container footer-inner"><span>НавитЭко · Екатеринбург</span><a href="${phoneHref}">${escape(data.phone)}</a></div></footer>
+  <div class="mobile-cta"><a href="${phoneHref}">Позвонить ${escape(data.phone)}</a></div>
+  <script src="./assets/site.js" defer></script>
+</body>
+</html>`;
 
-const nav = () => (preview ? '<div class="preview-bar"><span>Концепция 01 · название и дизайн на согласовании</span>'+pageLink("concept","Названия и логотипы ↗")+'</div>' : "")+'<header class="site-header container">'+brand()+'<button class="nav-toggle" type="button" aria-label="Открыть меню" aria-controls="navigation" aria-expanded="false">Меню <span aria-hidden="true">☰</span></button><nav id="navigation" aria-label="Основная навигация"><a href="./index.html#services">Услуги и цены</a><a href="./index.html#how">Как работаем</a><a href="'+phoneHref+'" class="phone-link">'+safe(data.phone)+'</a><a class="button button-small" href="./index.html#calculator">Рассчитать стоимость <span aria-hidden="true">↗</span></a></nav></header>';
-const footer = () => '<footer id="contacts"><div class="container footer-grid"><div>'+brand()+'<p>Бережно к дому.<br>Внимательно к вам.</p></div><div><span class="eyebrow">На связи</span><p>'+safe(data.serviceArea)+'<br>'+safe(data.hours)+'</p><a class="footer-phone" href="'+phoneHref+'">'+safe(data.phone)+'</a><a href="./index.html#photo">Фото или осмотр ↗</a></div><div><span class="eyebrow">Информация</span>'+pageLink("privacy","Обработка персональных данных")+pageLink("concept","Название и фирменный стиль")+'<small>'+(preview?"Telegram и MAX подключим после создания ботов.":"© "+new Date().getFullYear()+" "+safe(data.brand))+'</small></div></div><div class="container footer-bottom"><span>Клининг и химчистка · Екатеринбург</span><span>'+(preview?"Демонстрационная версия · заявки не отправляются":safe(data.brand))+'</span></div></footer><div class="mobile-cta"><a href="'+phoneHref+'">Позвонить</a><a href="./index.html#calculator">Рассчитать ↗</a></div><div class="toast" role="status" aria-live="polite" hidden></div><script src="./assets/config.js"></script><script src="./assets/site.js" defer></script>';
-const head = (page, description, slug="") => '<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#2458D3"><meta name="description" content="'+safe(description)+'">'+(preview?'<meta name="robots" content="noindex,nofollow,noarchive">':"")+'<title>'+safe(page+' — '+data.brand)+'</title><link rel="icon" href="./assets/brand-mark.svg" type="image/svg+xml"><link rel="manifest" href="./site.webmanifest"><link rel="stylesheet" href="./assets/site.css"><meta property="og:title" content="'+safe(page+' — '+data.brand)+'"><meta property="og:description" content="'+safe(description)+'"><meta property="og:type" content="website"><meta property="og:locale" content="ru_RU">'+(data.siteUrl?'<link rel="canonical" href="'+safe(new URL(slug,data.siteUrl).href)+'">':"")+'</head>';
-const schema = () => '<script type="application/ld+json">'+JSON.stringify({"@context":"https://schema.org","@type":"LocalBusiness",name:data.brand,telephone:data.phone,areaServed:data.serviceArea,hasOfferCatalog:{"@type":"OfferCatalog",name:"Клининг и химчистка",itemListElement:data.services.map(s=>({"@type":"Offer",price:s.price,priceCurrency:"RUB",itemOffered:{"@type":"Service",name:s.name}}))}}).replace(/</g,"\\u003c")+'</script><script type="application/ld+json">'+JSON.stringify({"@context":"https://schema.org","@type":"FAQPage",mainEntity:faq.map(([q,a])=>({"@type":"Question",name:q,acceptedAnswer:{"@type":"Answer",text:a}}))}).replace(/</g,"\\u003c")+'</script>';
-const layout = (content, title, description, slug="", extra="") => head(title,description,slug)+'<body><a class="skip-link" href="#main">К содержанию</a>'+nav()+'<main id="main">'+content+'</main>'+extra+footer()+'</body></html>';
-
-const homeContent = () => '<section class="hero container"><div class="hero-copy"><p class="eyebrow location"><span class="status-dot"></span> Екатеринбург · клининг и химчистка</p><h1>Чистый дом.<br><span>Свободный<br>день.</span></h1><p class="hero-lead">Уборка и забота о мебели, пока вы занимаетесь тем, что любите. Согласуем цену и приедем в удобное время.</p><div class="hero-actions"><a class="button" href="#calculator">Узнать стоимость <span aria-hidden="true">↗</span></a><a class="button button-outline" href="#photo">Оценить по фото</a></div><p class="hero-note"><span aria-hidden="true">✓</span> Стоимость согласуем до начала работ</p></div><div class="hero-visual"><img class="hero-image" src="./assets/hero-interior.webp" width="1536" height="1024" fetchpriority="high" alt="Светлая гостиная с мягким диваном — иллюстрация интерьера"><div class="photo-tag"><span class="photo-tag-icon" aria-hidden="true">↗</span><div><strong>Всё начинается с заботы</strong><span>О вашем доме и вашем времени</span></div></div><span class="image-caption">Иллюстрация интерьера · ИИ</span></div></section>'+
-'<div class="container benefit-row"><span><i aria-hidden="true">01</i> Выезд по Екатеринбургу</span><span><i aria-hidden="true">02</i> '+safe(data.operatorStatus)+' · свой инвентарь</span><span><i aria-hidden="true">03</i> Цена до начала работ</span></div>'+
-'<section class="section container" id="services"><div class="section-heading"><div><p class="eyebrow">01 / Услуги</p><h2>Что доверите<br><span>нам сегодня?</span></h2></div><p>От свежести любимого кресла до уборки всей квартиры. Выберите свою задачу.</p></div><div class="filters" role="group" aria-label="Категории услуг"><button type="button" class="active" data-filter="all" aria-pressed="true">Все услуги <span>10</span></button><button type="button" data-filter="cleaning" aria-pressed="false">Уборка</button><button type="button" data-filter="furniture" aria-pressed="false">Химчистка</button><button type="button" data-filter="special" aria-pressed="false">Особый уход</button></div><div class="service-grid">'+services()+'</div><p class="section-footnote">Цены указаны «от». Итог зависит от объёма, материалов и загрязнения. Состав работ и длительность уточняем перед выездом.</p></section>'+
-'<section class="calculator-section" id="calculator"><div class="container split"><div class="section-copy"><p class="eyebrow">02 / Стоимость</p><h2>Знакомство<br>с чистотой —<br><span>без сюрпризов.</span></h2><p>Выберите услугу и расскажите о задаче. Точную стоимость согласуем после уточнения деталей или фото.</p><div class="little-note"><span aria-hidden="true">↗</span><p>Не знаете, с чего начать?<br><a href="#photo">Начните с фотографии.</a></p></div></div><form class="calculator" aria-label="Оценка стоимости"><div class="form-top"><span>Ваша задача</span><span>01 — 02</span></div><label>Услуга<select name="service">'+options()+'</select></label><div class="form-grid"><label>Площадь, м²<input name="area" type="number" min="1" max="1000" value="40" inputmode="decimal"></label><label>Количество комнат<select name="rooms"><option>1</option><option selected>2</option><option>3</option><option>4 и больше</option></select></label></div><label class="quantity-field" hidden>Количество предметов<input name="quantity" type="number" min="1" max="20" value="1" inputmode="numeric"></label><fieldset class="checks"><legend>Что важно учесть</legend><label><input type="checkbox" name="pets"> Есть животные</label><label><input type="checkbox" name="heavy"> Сложные загрязнения</label><label><input type="checkbox" name="urgent"> Нужна срочная уборка</label></fieldset><output aria-live="polite"><span>Стартовый ориентир</span><strong>от <span id="estimate">'+money(data.services[0].price)+'</span> ₽</strong></output><p class="calculator-explanation">Площадь и особенности помогают уточнить задачу. Доплаты не рассчитаны: правила согласуем с мастером.</p><a class="button calculator-book" href="#booking">Уточнить стоимость <span aria-hidden="true">↗</span></a></form></div></section>'+
-'<section class="section container" id="how"><div class="section-heading"><div><p class="eyebrow">03 / Всё просто</p><h2>Меньше хлопот.<br><span>Больше жизни.</span></h2></div><p>Клиент выбирает желаемую дату, а визит появляется в календаре после подтверждения.</p></div><div class="steps"><article><span>01</span><h3>Выберите дату</h3><p>Укажите услугу и удобный день — это пожелание, а не автоматическая бронь.</p></article><article><span>02</span><h3>Оценим задачу</h3><p>Поддерживающую уборку — по фото. Генеральную и после ремонта — на предварительном осмотре.</p></article><article><span>03</span><h3>Подтвердим запись</h3><p>Согласуем стоимость и время, после чего добавим визит в календарь.</p></article><article><span>04</span><h3>Наведём порядок</h3><p>Приедем с инвентарём, выполним работу и вместе проверим результат.</p></article></div></section>'+
-'<section class="container photo-section" id="photo"><div><p class="eyebrow">Фото или осмотр</p><h2>Сначала оценим.<br>Потом <span>подтвердим.</span></h2><p>Для поддерживающей уборки достаточно фотографий. Для генеральной уборки и после ремонта специалист предварительно приедет на осмотр.</p><div class="hero-actions"><a class="button button-white" href="'+phoneHref+'">Позвонить '+safe(data.phone)+' ↗</a><button type="button" class="button button-translucent" data-demo="Telegram и MAX появятся после создания ботов. Сейчас можно позвонить по номеру '+safe(data.phone)+'.">Telegram + MAX · скоро</button></div></div><div class="photo-illustration" aria-hidden="true"><div class="message-card"><span class="message-label">Поддерживающая уборка</span><div class="sofa-icon"><svg viewBox="0 0 200 110" fill="none"><rect x="36" y="25" width="128" height="57" rx="15" stroke="currentColor" stroke-width="3"/><path d="M100 27v43M30 50c-15 0-17 11-17 23v16h174V73c0-12-2-23-17-23-11 0-14 10-14 20H46c0-10-5-20-16-20ZM29 89v11m142-11v11" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg></div><span>«Пришлю фото квартиры»</span></div><div class="reply-card"><span class="status-dot"></span> Для сложной уборки договоримся об осмотре</div></div></section>'+
-'<section class="section container booking-section" id="booking"><div class="section-copy"><p class="eyebrow">04 / Желаемая дата</p><h2>Выберите день.<br><span>Мы подтвердим.</span></h2><p>Дата в заявке не бронируется автоматически. Сначала уточним задачу, стоимость и время, затем внесём подтверждённый визит в календарь.</p><div class="demo-note"><strong>Это первый макет</strong><p>Форма показана для согласования. Личные данные не вводятся и заявки не отправляются.</p></div></div><form id="booking-form" class="booking-form"><label>Что нужно сделать<select name="service">'+options()+'</select></label><label>Желаемая дата<input type="date" name="date"></label><div class="form-grid"><label>Ваше имя<input name="name" autocomplete="off" placeholder="Имя клиента" disabled></label><label>Телефон<input name="phone" autocomplete="off" placeholder="+7 ___ ___-__-__" disabled></label></div><div class="consent"><input id="consent" type="checkbox" disabled><label for="consent">Согласие на '+pageLink("privacy","обработку персональных данных")+'</label></div><button class="button" type="submit">Оставить заявку <span aria-hidden="true">↗</span></button><p class="form-status" aria-live="polite">Демонстрационный режим · отправка отключена</p></form></section>'+
-'<section class="districts"><div class="container"><p class="eyebrow">Рядом с вами</p><h2>Весь Екатеринбург.<br><span>Ваш район тоже.</span></h2><div class="district-tags">'+["Центр","Академический","Уралмаш","Эльмаш","ВИЗ","ЖБИ","Ботаника","Вторчермет","Пионерский","Юго-Западный","И другие районы"].map(x=>'<span>'+x+'</span>').join("")+'</div><p>Выезжаем во все районы города. Адрес, парковку и время в пути уточняем при согласовании заявки.</p></div></section>'+
-'<section class="section container faq" id="faq"><div><p class="eyebrow">05 / До первого визита</p><h2>Возможно,<br><span>вы спросите.</span></h2></div><div>'+faq.map(([q,a])=>'<details><summary>'+safe(q)+'<span aria-hidden="true">+</span></summary><p>'+safe(a)+'</p></details>').join("")+'</div></section>';
-
-const names = [
-  ["НавитЭко","Название заказчицы; латиница naviteco подтверждена.","naviteco.ru"],
-  ["Тихо чисто","Спокойствие, бережность и время для себя.","tihoclean.ru / tihochisto.ru"],
-  ["Ясно дома","Светлое, домашнее, легко произнести.","yasnodoma.ru"],
-  ["Ладно дома","Тёплая интонация личного сервиса.","ladnodoma.ru"],
-  ["Чистая пауза","Пока мы убираем, вы отдыхаете.","chistayapauza.ru"],
-  ["Чисто рядом","Понятная услуга в вашем городе.","chistoryadom.ru"],
-  ["Лёгкий дом","Комфорт и свобода от бытовых задач.","legkiydom-ekb.ru"],
-  ["Синяя линия","Графичное, собранное настроение.","sinyaya-liniya-ekb.ru"]
-];
-const conceptContent = () => '<section class="section container"><p class="eyebrow">Концепция 01 · на согласование</p><h1 class="page-title">Спокойный синий.<br><span>Чистая форма.</span></h1><p class="page-intro">В основу макета поставили предложенное заказчицей название «НавитЭко». Латиница <code>naviteco</code> уже подтверждена; это первый эскиз фирменного стиля — смысл названия и знак уточним после ответа.</p><div class="brand-showcase"><img src="./assets/logo.svg" width="340" height="76" alt="Рабочий логотип НавитЭко"><span>Бережно к дому. Внимательно к вам.</span></div><h2>Три направления знака</h2><div class="logo-options">'+[["brand-mark","01 / Окно","Воздух, дом и порядок. Предлагаем как основной."],["brand-fold","02 / Складка","Мягкая ткань и бережная химчистка."],["brand-orbit","03 / Орбита","Завершённая забота, лёгкость и движение."]].map(([file,title,desc])=>'<article><img src="./assets/'+file+'.svg" width="80" height="80" alt="'+safe(title)+'"><h3>'+title+'</h3><p>'+desc+'</p></article>').join("")+'</div><h2>Палитра</h2><div class="palette">'+[["#2458D3","Основной синий"],["#12284B","Текст"],["#EFF5FF","Ледяной"],["#FFFFFF","Белый"]].map(([color,name])=>'<div><span style="background:'+color+'"></span><strong>'+name+'</strong><small>'+color+'</small></div>').join("")+'</div><h2>Название и резервные варианты</h2><p>Первый макет использует «НавитЭко», основной кандидат домена — <code>naviteco.ru</code>.</p><div class="name-options">'+names.map(([name,desc,domain],i)=>'<article><span class="eyebrow">'+String(i+1).padStart(2,"0")+(i===0?" · вариант заказчицы":"")+'</span><h3>'+name+'</h3><p>'+desc+'</p><code>'+domain+'</code></article>').join("")+'</div><div class="demo-note"><strong>Домен ещё не зарегистрирован</strong><p>Доступность <code>naviteco.ru</code> и товарный знак не подтверждены. Ничего не приобреталось. Перед регистрацией проверим WHOIS и совпадения.</p></div><h2>Что обсудим после просмотра</h2><ol class="feedback-list"><li>Что означает «НавитЭко» и точно ли кириллическое написание?</li><li>Какой знак ближе?</li><li>Какие услуги поставить первыми?</li><li>Понятно ли, как узнать стоимость?</li><li>Какие три вещи нужно изменить в первую очередь?</li></ol><a class="button" href="./index.html">Вернуться к макету ↗</a></section>';
-const privacyContent = () => '<section class="section container legal"><p class="eyebrow">Черновик · не для приёма заявок</p><h1 class="page-title">Обработка<br><span>персональных данных.</span></h1><div class="demo-note"><strong>В этом макете сбор данных отключён</strong><p>Поля имени и телефона недоступны, данные не отправляются. Перед запуском подготовим политику и текст согласия под фактического оператора, сервисы и процессы.</p></div><h2>Что предстоит заполнить</h2><ul><li>ФИО и реквизиты оператора, контакт для обращений.</li><li>Перечень данных, цели и основания обработки.</li><li>Российские сервисы хранения и круг лиц с доступом.</li><li>Сроки хранения, порядок удаления и отзыва согласия.</li><li>Условия общения через мессенджеры и передачи фотографий.</li></ul><p>Рабочий ориентир из задания — хранение заявок до 6 месяцев. Точный регламент и необходимые действия перед началом обработки согласуем отдельно.</p><a class="button" href="./index.html#booking">Вернуться к форме ↗</a></section>';
-const serviceContent = s => '<section class="section container"><p class="eyebrow">Клининг и химчистка · Екатеринбург</p><h1 class="page-title">'+safe(s.name)+'<br><span>с заботой о доме.</span></h1><p class="page-intro">'+safe(s.description)+'</p><p class="service-price">от '+money(s.price)+' ₽ <small>· '+safe(s.duration)+'</small></p><a class="button" href="./index.html#booking">Уточнить стоимость ↗</a><div class="service-detail"><h2>Что входит</h2><ul>'+s.includes.map(x=>'<li>'+safe(x)+'</li>').join("")+'</ul></div><p>Состав, время и финальную стоимость согласуем после уточнения деталей. Если нужно — начнём с фотографии.</p><a class="text-link" href="./index.html#services">← Все услуги</a></section>';
-
-await mkdir(out,{recursive:true});
-await mkdir(new URL("assets/",out),{recursive:true});
-for (const name of await readdir(new URL("assets/",root))) {
-  if (/\.(css|js|svg|webp)$/.test(name)) await cp(new URL("assets/"+name,root),new URL("assets/"+name,out));
-}
-const home = layout(homeContent(),"Клининг и химчистка в Екатеринбурге","Бережная уборка квартир и химчистка мебели с выездом по Екатеринбургу.","",preview?"":schema());
-await writeFile(new URL("index.html",out),home);
-await writeFile(new URL("concept.html",out),layout(conceptContent(),"Название и фирменный стиль","Синий минималистичный стиль, название НавитЭко и три концепции логотипа.","concept.html"));
-await writeFile(new URL("privacy.html",out),layout(privacyContent(),"Обработка персональных данных","Черновик политики для согласования.","privacy.html"));
-for (const s of data.services) await writeFile(new URL(s.slug+".html",out),layout(serviceContent(s),s.name+" в Екатеринбурге",s.description,s.slug+".html"));
-const urls = ["","privacy.html",...data.services.map(s=>s.slug+".html")];
-const base = data.siteUrl || "https://example.invalid/";
-await writeFile(new URL("robots.txt",out),preview?"User-agent: *\nDisallow: /\n":"User-agent: *\nAllow: /\nSitemap: "+new URL("sitemap.xml",base).href+"\n");
-await writeFile(new URL("sitemap.xml",out),'<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'+(preview?"":urls.map(u=>"<url><loc>"+safe(new URL(u,base).href)+"</loc></url>").join(""))+'</urlset>');
-await writeFile(new URL("site.webmanifest",out),JSON.stringify({name:data.brand,short_name:data.brand,start_url:"./",display:"standalone",theme_color:"#2458D3",background_color:"#FFFFFF",icons:[{src:"./assets/brand-mark.svg",sizes:"any",type:"image/svg+xml"}]}));
-
-// One portable HTML for review, no network or build tools needed.
-if (preview) {
-  const dialogs = [["concept",conceptContent()],["privacy",privacyContent()],...data.services.map(s=>[s.slug,serviceContent(s)])].map(([id,content])=>'<dialog id="page-'+id+'" class="page-dialog"><button class="dialog-close" type="button" aria-label="Закрыть окно">Закрыть ×</button>'+content+'</dialog>').join("");
-  let portable = home.replace("</main>","</main>"+dialogs);
-  const css = await readFile(new URL("assets/site.css",root),"utf8");
-  const js = await readFile(new URL("assets/site.js",root),"utf8");
-  const config = await readFile(new URL("assets/config.js",root),"utf8");
-  portable = portable.replace('<link rel="stylesheet" href="./assets/site.css">',()=>"<style>"+css+"</style>")
-    .replace('<link rel="manifest" href="./site.webmanifest">',"")
-    .replace('<script src="./assets/config.js"></script>',()=>"<script>"+config+"</script>")
-    .replace('<script src="./assets/site.js" defer></script>',()=>"<script>"+js+"</script>")
-    .replaceAll('href="./index.html#','href="#').replaceAll('href="./index.html"','href="#"');
-  for (const name of await readdir(new URL("assets/",root))) {
-    if (/\.(svg|webp)$/.test(name)) {
-      const bytes = await readFile(new URL("assets/"+name,root));
-      const uri = "data:image/"+(name.endsWith(".svg")?"svg+xml":"webp")+";base64,"+bytes.toString("base64");
-      portable = portable.replaceAll("./assets/"+name,uri);
-    }
-  }
-  await mkdir(new URL("review/",root),{recursive:true});
-  await writeFile(new URL("review/preview.html",root),portable);
-  await writeFile(new URL("preview.html",out),portable);
-  await writeFile(new URL("review/README.txt",root),"Первый макет · 21.09.2026\n\nОткройте preview.html в браузере. Интернет не нужен.\nНа мобильном устройстве сначала скачайте файл, затем откройте в браузере; просмотрщик мессенджера может не выполнять JavaScript.\nВнутри работают фильтры услуг, стартовый расчёт, FAQ, название НавитЭко и три варианта знака.\nЭто концепция: данные не собираются, заявки не отправляются. Латиница naviteco и стартовые суммы подтверждены.\n\nОбратная связь: стиль; смысл названия; знак; порядок услуг; единицы расчёта; три главные правки.\n");
-}
-console.log("Built "+(data.services.length+3)+" pages and "+(preview?"portable review/preview.html":"production pages")+".");
+await mkdir(new URL("assets/", out), { recursive: true });
+await mkdir(new URL("review/", root), { recursive: true });
+const css = await readFile(new URL("assets/site.css", root), "utf8");
+const js = await readFile(new URL("assets/site.js", root), "utf8");
+const logo = await readFile(new URL("assets/brand-mark.svg", root));
+const logoUrl = `data:image/svg+xml;base64,${logo.toString("base64")}`;
+const portable = html
+  .replace('<link rel="stylesheet" href="./assets/site.css">', `<style>${css}</style>`)
+  .replace('<script src="./assets/site.js" defer></script>', `<script>${js}</script>`)
+  .replaceAll("./assets/brand-mark.svg", logoUrl);
+await writeFile(new URL("index.html", out), html);
+await writeFile(new URL("assets/site.css", out), css);
+await writeFile(new URL("assets/site.js", out), js);
+await writeFile(new URL("assets/brand-mark.svg", out), logo);
+await writeFile(new URL("preview.html", out), portable);
+await writeFile(new URL("review/preview.html", root), portable);
+await writeFile(new URL("review/README.txt", root), "НавитЭко · версия для согласования\n\nОткройте preview.html в браузере. Сайт показывает услуги, стартовые цены и рабочий телефон.\n");
+await writeFile(new URL("robots.txt", out), "User-agent: *\nDisallow: /\n");
+console.log(`Built ${data.services.length} services and portable review/preview.html.`);

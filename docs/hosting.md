@@ -2,11 +2,11 @@
 
 ## Опубликованный макет
 
-21.09.2026 создан отдельный бакет `clining-preview-bogdasovandrej-20260920` со стандартным хранилищем и лимитом 1 ГБ. Публично только чтение объектов; чтение списка и настроек требует авторизации. Загружен один автономный файл размером около 357 КБ:
+21.09.2026 создан отдельный бакет `clining-preview-bogdasovandrej-20260920` со стандартным хранилищем и лимитом 1 ГБ. Публично только чтение объектов; чтение списка и настроек требует авторизации. 24.09 файл обновлён до первой версии сайта размером около 14 КБ:
 
-[https://storage.yandexcloud.net/clining-preview-bogdasovandrej-20260920/preview.html](https://storage.yandexcloud.net/clining-preview-bogdasovandrej-20260920/preview.html)
+[https://storage.yandexcloud.net/clining-preview-bogdasovandrej-20260920/preview.html?v=20260924](https://storage.yandexcloud.net/clining-preview-bogdasovandrej-20260920/preview.html?v=20260924)
 
-Это демонстрация без сбора персональных данных. Рабочий сайт и API на этот бакет автоматически не выкладываются.
+Страница позволяет позвонить по рабочему номеру; формы сбора персональных данных нет. API на этот бакет автоматически не выкладывается.
 
 План: собственный домен с HTTPS → Yandex Object Storage в регионе Россия. Публичный API: Yandex API Gateway + Cloud Functions. База записей и расписания — в РФ. GitHub не участвует в обслуживании запросов посетителей.
 
