@@ -21,14 +21,17 @@ for (const [,id] of html.matchAll(/aria-(?:labelledby|controls)="([^"]+)"/g)) as
 for (const [,src] of html.matchAll(/(?:src|href)="(\.\/assets\/[^"]+)"/g)) await readFile(new URL(src, new URL('dist/', root)));
 assert.equal((html.match(/<h1\b/g) || []).length, 1);
 assert.equal((html.match(/class="service-card"/g) || []).length, 12);
-assert.equal((html.match(/<figure class="work-card">/g) || []).length, 2);
+assert.equal((html.match(/<article class="service-card"/g) || []).length, 12);
+assert.equal((html.match(/<figure class="review-card">/g) || []).length, 3);
+assert.ok(!/<details class="service-card"|id="work"|class="photo-dialog"/.test(html), 'Rejected accordion and photo gallery must stay removed');
+assert.ok(!/\b0[1-4] \/ (?:Услуги|Фото|Как|Перед)/.test(html), 'Section numbering must stay removed');
 for (const service of data.services) {
   assert.ok(html.includes(`id="${service.slug}"`));
   assert.ok(html.includes(service.name));
   assert.ok(service.description?.length > 10);
   assert.ok(!service.duration && !service.includes, 'Do not publish unconfirmed timing or inclusions');
 }
-const master = html.match(/<details[^>]*id="master-na-chas"[\s\S]*?<\/details>/)?.[0];
+const master = html.match(/<article[^>]*id="master-na-chas"[\s\S]*?<\/article>/)?.[0];
 assert.ok(master && !master.includes('₽'), 'Do not invent a handyman price');
 for (const page of [html, portable]) {
   assert.ok(page.includes('href="tel:+79920070181"'));
@@ -43,7 +46,7 @@ for (const page of [html, portable]) {
   }
 }
 assert.ok(!/src="\.\/|rel="stylesheet"|<script[^>]*src=|url\(https?:/.test(portable), 'Preview must not depend on remote assets');
-assert.equal((portable.match(/src="data:image\/jpeg;base64,/g) || []).length, 2);
+assert.equal((portable.match(/data:image\/jpeg;base64,/g) || []).length, 0);
 assert.ok(Buffer.byteLength(portable) < 250_000, 'Portable preview exceeded size budget');
 assert.equal(portable, await readFile(new URL('dist/preview.html', root), 'utf8'));
 const js = await readFile(new URL('assets/site.js', root), 'utf8');

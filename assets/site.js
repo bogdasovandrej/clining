@@ -10,7 +10,6 @@
     });
     cards.forEach(card => {
       card.hidden = category !== 'all' && card.dataset.category !== category;
-      if (card.hidden) card.open = false;
     });
     count.textContent = `Показано: ${cards.filter(card => !card.hidden).length} из ${cards.length}`;
   }
@@ -28,31 +27,19 @@
       menu.querySelector('summary').focus();
     }
   });
-  // Native dialogs provide focus containment and Escape handling.
-  const photoDialog = document.querySelector('#photo-dialog');
+  // The information dialog uses native focus containment and Escape handling.
   const infoDialog = document.querySelector('#info-dialog');
-  if (typeof photoDialog.showModal === 'function') {
+  if (typeof infoDialog.showModal === 'function') {
     let opener;
     const openDialog = (dialog, button) => {
       opener = button;
       dialog.showModal();
       document.body.classList.add('modal-open');
     };
-    document.querySelectorAll('[data-photo]').forEach(button => {
-      button.hidden = false;
-      button.addEventListener('click', () => {
-        const image = button.closest('figure').querySelector('img');
-        const target = photoDialog.querySelector('img');
-        target.src = image.src;
-        target.alt = image.alt;
-        photoDialog.querySelector('h2').textContent = button.dataset.photo;
-        openDialog(photoDialog, button);
-      });
-    });
     const infoButton = document.querySelector('[data-info]');
     infoButton.hidden = false;
     infoButton.addEventListener('click', () => openDialog(infoDialog, infoButton));
-    [photoDialog, infoDialog].forEach(dialog => {
+    [infoDialog].forEach(dialog => {
       dialog.querySelector('[data-close]').addEventListener('click', () => dialog.close());
       dialog.addEventListener('click', event => {
         const rect = dialog.getBoundingClientRect();
@@ -70,6 +57,6 @@
     const observer = new IntersectionObserver(entries => entries.forEach(entry => {
       if (entry.isIntersecting) { entry.target.classList.add('reveal'); observer.unobserve(entry.target); }
     }), { threshold: 0.08 });
-    document.querySelectorAll('.section-heading, .work-card, .steps > div').forEach(element => observer.observe(element));
+    document.querySelectorAll('.section-heading, .review-card, .steps > div').forEach(element => observer.observe(element));
   }
 })();
