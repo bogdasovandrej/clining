@@ -8,6 +8,12 @@ const html = await readFile(new URL('dist/index.html', root), 'utf8');
 const blockers = [];
 if (data.preview || !data.siteUrl) blockers.push('Review version: production domain and release approval are not set.');
 if (!data.legalReviewApproved) blockers.push('Resolve owner identity, personal-data handling and ozone-service scope; see docs/legal-review.md.');
+if (data.siteUrl) {
+  try {
+    const url = new URL(data.siteUrl);
+    if (url.protocol !== 'https:' || url.username || url.password || url.pathname !== '/' || url.search || url.hash) blockers.push('siteUrl must be the HTTPS origin of the public domain.');
+  } catch { blockers.push('siteUrl is not a valid URL.'); }
+}
 if (/example\.(ru|invalid)|USERNAME|\[ФИО\]|\[ИНН\]/i.test(html)) blockers.push('Placeholder content found.');
 if (blockers.length) {
   console.error(`Production release blocked (review link is separate):\n${blockers.join('\n')}`);

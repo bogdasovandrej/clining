@@ -3,6 +3,10 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises';
 const root = new URL('../', import.meta.url);
 const out = new URL('../dist/', import.meta.url);
 const data = JSON.parse(await readFile(new URL('data/services.json', root), 'utf8'));
+const publicSite = !data.preview && Boolean(data.siteUrl) && data.legalReviewApproved === true;
+const siteUrl = publicSite ? new URL(data.siteUrl).origin : null;
+const robotsMeta = publicSite ? 'index,follow' : 'noindex,nofollow,noarchive';
+const canonical = publicSite ? `<link rel="canonical" href="${siteUrl}/">` : '';
 const escape = value => String(value).replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[char]);
 const money = amount => new Intl.NumberFormat('ru-RU').format(amount);
 const phoneHref = `tel:+${data.phone.replace(/\D/g, '')}`;
@@ -28,7 +32,7 @@ const navLinks = '<a href="#services">Услуги и цены</a><a href="#how"
 const html = `<!doctype html>
 <html lang="ru"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#fcfcfa"><meta name="robots" content="noindex,nofollow,noarchive"><meta name="referrer" content="no-referrer">
+<meta name="theme-color" content="#fcfcfa"><meta name="robots" content="${robotsMeta}"><meta name="referrer" content="no-referrer">${canonical}
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; base-uri 'none'; form-action 'none'; connect-src 'none'; object-src 'none'">
 <meta name="description" content="Уборка квартир и химчистка мебели в Екатеринбурге. НавитЭко: услуги, цены, отзывы и запись по телефону. Ежедневно, 8:00–20:00.">
 <meta property="og:type" content="website"><meta property="og:locale" content="ru_RU"><meta property="og:title" content="НавитЭко — уборка и химчистка в Екатеринбурге"><meta property="og:description" content="Услуги, цены, отзывы и запись по телефону. Ежедневно, 8:00–20:00.">
@@ -86,6 +90,7 @@ await Promise.all([
   writeFile(new URL('preview.html', out), portable),
   writeFile(new URL('review/preview.html', root), portable),
   writeFile(new URL('review/README.txt', root), 'НавитЭко · версия для согласования\nОткройте preview.html в браузере. Страница автономна: услуги, цены, отзывы, телефон и личный Telegram.\n'),
-  writeFile(new URL('robots.txt', out), 'User-agent: *\nDisallow: /\n')
+  writeFile(new URL('robots.txt', out), publicSite ? `User-agent: *\nAllow: /\nSitemap: ${siteUrl}/sitemap.xml\n` : 'User-agent: *\nDisallow: /\n'),
+  writeFile(new URL('sitemap.xml', out), publicSite ? `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url><loc>${siteUrl}/</loc></url></urlset>\n` : '')
 ]);
 console.log(`Built ${data.services.length} services; portable preview: ${Buffer.byteLength(portable)} bytes.`);
