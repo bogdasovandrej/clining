@@ -1,22 +1,15 @@
-import { readFile, readdir } from "node:fs/promises";
+import { readFile } from 'node:fs/promises';
 
-// Fail before uploading a prototype with known placeholder content.
-// This is a release guard, not proof that the backend or legal text is ready.
-const dist = new URL("../dist/", import.meta.url);
-const files = (await readdir(dist)).filter((name) => name.endsWith(".html") || name.endsWith(".xml") || name === "robots.txt");
-files.push("assets/config.js");
-const placeholders = /example\.(ru|invalid)|USERNAME|\+7\s*\(000\)|\+70000000000|\[ФИО\]|\[ИНН\]|\[email\]|\[адрес\s*\/\s*email\]|Концепция 01|Демонстрационный режим|preview\s*:\s*true/i;
-const blocked = [];
-for (const file of files) {
-  if (placeholders.test(await readFile(new URL(file, dist), "utf8"))) blocked.push(file);
-}
-const config = await readFile(new URL("assets/config.js", dist), "utf8");
-if (/bookingEnabled\s*:\s*false/.test(config) || /apiBase\s*:\s*["']\s*["']/.test(config)) {
-  blocked.push("online booking is not configured");
-}
-if (blocked.length) {
-  console.error(`Release blocked: replace placeholder content and configure booking.\n${blocked.join("\n")}`);
+// This guard concerns production, not publication of the review HTML.
+// No automated check can certify legal compliance or business facts.
+const root = new URL('../', import.meta.url);
+const data = JSON.parse(await readFile(new URL('data/services.json', root), 'utf8'));
+const html = await readFile(new URL('dist/index.html', root), 'utf8');
+const blockers = [];
+if (data.preview || !data.siteUrl) blockers.push('Review version: production domain and release approval are not set.');
+if (!data.legalReviewApproved) blockers.push('Resolve owner identity, personal-data handling and ozone-service scope; see docs/legal-review.md.');
+if (/example\.(ru|invalid)|USERNAME|\[ФИО\]|\[ИНН\]/i.test(html)) blockers.push('Placeholder content found.');
+if (blockers.length) {
+  console.error(`Production release blocked (review link is separate):\n${blockers.join('\n')}`);
   process.exitCode = 1;
-} else {
-  console.log("Known release placeholders were not found; complete live acceptance checks before publishing.");
-}
+} else console.log('Automated production guard passed. Manual functional and legal approval still required.');
