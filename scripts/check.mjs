@@ -37,18 +37,21 @@ for (const page of [html, portable]) {
   assert.ok(page.includes('href="tel:+79920070181"'));
   assert.ok(page.includes('href="https://t.me/+79920070181"'));
   assert.ok(page.includes('500 ₽ за час'));
+  assert.ok(page.includes('Соколова Елена Викторовна'));
+  assert.ok(page.includes('Стоимость рассчитаю по фото или после предварительного осмотра объекта.'));
   assert.ok(page.includes('name="robots" content="noindex,nofollow,noarchive"'));
   assert.ok(!/<form\b|<iframe\b|<input\b/.test(page), 'No unconfigured data collection');
-  assert.equal((page.match(/disabled aria-disabled="true"/g) || []).length, 2, 'Bots must stay explicitly inactive');
+  assert.ok(!/Telegram-бота|MAX-бота|свободного времени в календаре на сайте нет|Отзывы с присланных скриншотов Авито/.test(page), 'Rejected text and bot placeholders must stay removed');
   assert.ok(!/USERNAME|example\.(ru|invalid)|Самозанятая специалистка|После подтверждения внесу запись в календарь|Работаю ежедневно|Выезжаю во все районы/.test(page));
   for (const [,href] of page.matchAll(/href="([^"]+)"/g)) {
-    assert.ok(href.startsWith('#') || href.startsWith('./assets/') || href.startsWith('data:image/svg+xml;') || href === 'tel:+79920070181' || href === 'https://t.me/+79920070181', `Unexpected link: ${href.slice(0, 100)}`);
+    assert.ok(href.startsWith('#') || href.startsWith('./assets/') || href.startsWith('data:image/jpeg;') || href === 'tel:+79920070181' || href === 'https://t.me/+79920070181', `Unexpected link: ${href.slice(0, 100)}`);
   }
 }
 assert.ok(!/src="\.\/|rel="stylesheet"|<script[^>]*src=|url\(https?:/.test(portable), 'Preview must not depend on remote assets');
-assert.equal((portable.match(/data:image\/jpeg;base64,/g) || []).length, 0);
+assert.equal((portable.match(/data:image\/jpeg;base64,/g) || []).length, 2, 'Client logo must appear in the header and favicon');
+assert.ok(portable.includes('--blue:#347847'), 'Green palette must remain in the client preview');
 assert.ok(Buffer.byteLength(portable) < 250_000, 'Portable preview exceeded size budget');
 assert.equal(portable, await readFile(new URL('dist/preview.html', root), 'utf8'));
 const js = await readFile(new URL('assets/site.js', root), 'utf8');
 assert.ok(!/fetch\(|XMLHttpRequest|localStorage|document\.cookie|innerHTML\s*=|eval\(/.test(js), 'Unexpected network, persistence or unsafe HTML');
-console.log('PASS: confirmed prices, service content, unique IDs, all anchors, ARIA references, assets, contact destinations, inactive bots, no data collection and portable size.');
+console.log('PASS: confirmed prices, service content, unique IDs, all anchors, ARIA references, assets, direct contacts, no bots, no data collection and portable size.');
