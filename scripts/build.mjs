@@ -18,6 +18,11 @@ const cards = data.services.map(service => `
     ${service.slug === "glazhka" ? `<p class="price">${money(service.price)} ₽ за час</p>` : service.price === null ? "" : `<p class="price">${escape(price(service))}</p>`}
     ${service.slug === "master-na-chas" ? '<p class="service-note">Стоимость услуги «Мастер на час» уточняйте по телефону.</p>' : ""}
   </article>`).join("");
+const workPhotos = [
+  { file: "work-chair.jpg", title: "Химчистка кресла", alt: "Кресло до и после чистки" },
+  { file: "work-room.jpg", title: "Уборка комнаты", alt: "Комната до и после уборки" },
+];
+const workCards = workPhotos.map(photo => `<figure class="work-card"><div class="work-image"><img src="./assets/${photo.file}" width="572" height="1280" loading="lazy" alt="${escape(photo.alt)}"></div><figcaption>${escape(photo.title)}</figcaption></figure>`).join("");
 const html = `<!doctype html>
 <html lang="ru">
 <head>
@@ -34,7 +39,7 @@ const html = `<!doctype html>
   <a class="skip-link" href="#main">К содержанию</a>
   <header class="site-header container">
     <a class="brand" href="#main" aria-label="НавитЭко — на главную"><img src="./assets/brand-mark.svg" width="34" height="34" alt=""><span>НавитЭко</span></a>
-    <nav aria-label="Основная навигация"><a href="#services">Услуги и цены</a><a href="#how">Как записаться</a><a class="header-phone" href="${phoneHref}">${escape(data.phone)}</a></nav>
+    <nav aria-label="Основная навигация"><a href="#services">Услуги и цены</a><a href="#work">Фото работ</a><a href="#how">Как записаться</a><a class="header-phone" href="${phoneHref}">${escape(data.phone)}</a></nav>
   </header>
   <main id="main">
     <section class="hero container">
@@ -48,6 +53,10 @@ const html = `<!doctype html>
       <div class="section-heading"><p class="eyebrow">Услуги и цены</p><h2>Чем могу помочь</h2><p>Указаны стартовые цены. Итоговая стоимость зависит от объёма и состояния помещения или вещи.</p></div>
       <div class="filters" role="group" aria-label="Категории услуг"><button type="button" class="active" data-filter="all" aria-pressed="true">Все услуги</button><button type="button" data-filter="home" aria-pressed="false">Уборка и дом</button><button type="button" data-filter="furniture" aria-pressed="false">Химчистка</button><button type="button" data-filter="other" aria-pressed="false">Другие услуги</button></div>
       <div class="service-grid">${cards}</div>
+    </section>
+    <section class="section container work-section" id="work">
+      <div class="section-heading"><p class="eyebrow">Фото работ</p><h2>Примеры уборки и химчистки</h2></div>
+      <div class="work-grid">${workCards}</div>
     </section>
     <section class="section process-section" id="how"><div class="container">
       <p class="eyebrow">Как записаться</p><h2>Выберите удобную дату</h2>
@@ -69,10 +78,15 @@ const css = await readFile(new URL("assets/site.css", root), "utf8");
 const js = await readFile(new URL("assets/site.js", root), "utf8");
 const logo = await readFile(new URL("assets/brand-mark.svg", root));
 const logoUrl = `data:image/svg+xml;base64,${logo.toString("base64")}`;
-const portable = html
+let portable = html
   .replace('<link rel="stylesheet" href="./assets/site.css">', `<style>${css}</style>`)
   .replace('<script src="./assets/site.js" defer></script>', `<script>${js}</script>`)
   .replaceAll("./assets/brand-mark.svg", logoUrl);
+for (const photo of workPhotos) {
+  const image = await readFile(new URL(`assets/${photo.file}`, root));
+  portable = portable.replaceAll(`./assets/${photo.file}`, `data:image/jpeg;base64,${image.toString("base64")}`);
+  await writeFile(new URL(`assets/${photo.file}`, out), image);
+}
 await writeFile(new URL("index.html", out), html);
 await writeFile(new URL("assets/site.css", out), css);
 await writeFile(new URL("assets/site.js", out), js);

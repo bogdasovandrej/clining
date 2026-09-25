@@ -23,7 +23,7 @@ assert.deepEqual(prices, {
 assert.equal(data.services.find(service => service.slug === "glazhka").unit, "₽/час");
 assert.equal(data.hours, "Ежедневно, 8:00–20:00");
 assert.equal(data.phone, "+7 992 007-01-81");
-assert.equal(data.reviewsAvailable, false);
+assert.equal(data.reviewsAvailable, true);
 for (const service of data.services) {
   assert.ok(html.includes(service.name), `${service.name} missing from site`);
 }
@@ -38,8 +38,11 @@ for (const page of [html, portable]) {
   assert.ok(page.includes("Позвоните или напишите"));
   assert.ok(page.includes('aria-disabled="true">Запись через Telegram-бота · скоро'));
   assert.ok(page.includes('aria-disabled="true">Запись через MAX-бота · скоро'));
+  assert.ok(page.includes('id="work"'));
+  assert.equal((page.match(/<figure class="work-card">/g) || []).length, 2);
   assert.ok(!/USERNAME|example\.(ru|invalid)|Демонстрационный режим|Концепция 01|Иллюстрация интерьера|· ИИ|Telegram \+ MAX · скоро|Отзывы клиентов|name="name"|name="phone"/i.test(page));
 }
 assert.ok(!/src="\.\/|rel="stylesheet"/.test(portable), "Public preview must be self-contained");
 assert.ok(portable.includes("data:image/svg+xml;base64,"));
+assert.equal((portable.match(/src="data:image\/jpeg;base64,/g) || []).length, 2);
 console.log("PASS: 12 services, confirmed prices, real phone and self-contained preview.");
