@@ -43,9 +43,9 @@ const html = `<!doctype html>
   </header>
   <main id="main">
     <section class="hero container">
-      <p class="eyebrow">Екатеринбург · все районы</p>
+      <p class="eyebrow">Екатеринбург</p>
       <h1>Уборка квартир<br>и химчистка мебели</h1>
-      <p class="hero-lead">Поддерживающая и генеральная уборка, уборка после ремонта, чистка мебели и дополнительные услуги по дому. Работаю ежедневно с 8:00 до 20:00.</p>
+      <p class="hero-lead">Поддерживающая и генеральная уборка, уборка после ремонта, чистка мебели и дополнительные услуги по дому. Ежедневно с 8:00 до 20:00.</p>
       <div class="hero-actions"><a class="button" href="#services">Посмотреть цены</a><a class="button button-outline" href="${phoneHref}">Позвонить</a><a class="button button-outline" href="${telegramHref}" target="_blank" rel="noopener noreferrer">Написать в Telegram</a></div>
     </section>
     <div class="facts container"><span>Выезд по всему Екатеринбургу</span><span>Ежедневно, 8:00–20:00</span><span>Стоимость согласую до начала работы</span></div>
@@ -60,11 +60,11 @@ const html = `<!doctype html>
     </section>
     <section class="section process-section" id="how"><div class="container">
       <p class="eyebrow">Как записаться</p><h2>Выберите удобную дату</h2>
-      <div class="steps"><div><span>01</span><h3>Позвоните или напишите</h3><p>Расскажите, какая услуга нужна, и назовите желаемую дату.</p></div><div><span>02</span><h3>Оценка работы</h3><p>Поддерживающую уборку оценю по фото. Перед генеральной и послестроительной приеду на осмотр.</p></div><div><span>03</span><h3>Подтверждение визита</h3><p>Согласую стоимость и время. После подтверждения внесу запись в календарь.</p></div></div>
+      <div class="steps"><div><span>01</span><h3>Позвоните или напишите</h3><p>Расскажите, какая услуга нужна, и назовите желаемую дату.</p></div><div><span>02</span><h3>Оценка работы</h3><p>Поддерживающую уборку оценю по фото. Перед генеральной и послестроительной приеду на осмотр.</p></div><div><span>03</span><h3>Подтверждение визита</h3><p>Согласую стоимость и время.</p></div></div>
       <div class="contact-actions"><a class="button" href="${phoneHref}">Позвонить ${escape(data.phone)}</a><a class="button button-outline" href="${telegramHref}" target="_blank" rel="noopener noreferrer">Написать в Telegram</a></div>
       <div class="future-channels" aria-label="Будущие способы записи"><a role="link" aria-disabled="true">Запись через Telegram-бота · скоро</a><a role="link" aria-disabled="true">Запись через MAX-бота · скоро</a></div>
     </div></section>
-    <section class="section container contact-section" id="contacts"><p class="eyebrow">Контакты</p><h2>НавитЭко</h2><p>Выезжаю во все районы Екатеринбурга. Ежедневно, 8:00–20:00.</p><a class="contact-phone" href="${phoneHref}">${escape(data.phone)}</a><p>Позвоните или <a class="inline-link" href="${telegramHref}" target="_blank" rel="noopener noreferrer">напишите мне в Telegram</a>, чтобы обсудить задачу и желаемую дату.</p></section>
+    <section class="section container contact-section" id="contacts"><p class="eyebrow">Контакты</p><h2>НавитЭко</h2><p>Все районы Екатеринбурга. Ежедневно, 8:00–20:00.</p><a class="contact-phone" href="${phoneHref}">${escape(data.phone)}</a><p>Позвоните или <a class="inline-link" href="${telegramHref}" target="_blank" rel="noopener noreferrer">напишите мне в Telegram</a>, чтобы обсудить задачу и желаемую дату.</p></section>
   </main>
   <footer><div class="container footer-inner"><span>НавитЭко · Екатеринбург</span><a href="${phoneHref}">${escape(data.phone)}</a></div></footer>
   <div class="mobile-cta"><a href="${phoneHref}">Позвонить</a><a href="${telegramHref}" target="_blank" rel="noopener noreferrer">Написать в Telegram</a></div>

@@ -36,6 +36,12 @@ for (const page of [html, portable]) {
   assert.ok(!page.includes("Самозанятая специалистка"));
   assert.ok(page.includes("послестроительной приеду на осмотр"));
   assert.ok(page.includes("Позвоните или напишите"));
+  assert.ok(page.includes('<p class="eyebrow">Екатеринбург</p>'));
+  assert.ok(page.includes("Ежедневно с 8:00 до 20:00."));
+  assert.ok(page.includes("Все районы Екатеринбурга. Ежедневно, 8:00–20:00."));
+  assert.ok(!page.includes("Выезжаю во все районы Екатеринбурга"));
+  assert.ok(!page.includes("После подтверждения внесу запись в календарь"));
+  assert.ok(!page.includes("Работаю ежедневно"));
   assert.ok(page.includes('aria-disabled="true">Запись через Telegram-бота · скоро'));
   assert.ok(page.includes('aria-disabled="true">Запись через MAX-бота · скоро'));
   assert.ok(page.includes('id="work"'));
