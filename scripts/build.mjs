@@ -33,11 +33,11 @@ const html = `<!doctype html>
 <meta name="description" content="Уборка квартир и химчистка мебели в Екатеринбурге. НавитЭко: услуги, цены, отзывы и запись по телефону. Ежедневно, 8:00–20:00.">
 <meta property="og:type" content="website"><meta property="og:locale" content="ru_RU"><meta property="og:title" content="НавитЭко — уборка и химчистка в Екатеринбурге"><meta property="og:description" content="Услуги, цены, отзывы и запись по телефону. Ежедневно, 8:00–20:00.">
 <title>НавитЭко — уборка и химчистка в Екатеринбурге</title>
-<link rel="icon" href="./assets/client-logo.jpg" type="image/jpeg"><link rel="stylesheet" href="./assets/site.css">
+<link rel="icon" href="./assets/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="./assets/site.css">
 </head><body>
 <a class="skip-link" href="#main">К содержанию</a>
 <div class="header-wrap"><header class="site-header container">
-<a class="brand" href="#main" aria-label="НавитЭко — на главную"><img src="./assets/client-logo.jpg" width="68" height="68" alt=""><span>НавитЭко</span></a>
+<a class="brand" href="#main" aria-label="НавитЭко — на главную"><img src="./assets/client-logo-transparent.png" width="68" height="68" alt=""><span>НавитЭко</span></a>
 <nav class="desktop-nav" aria-label="Основная навигация">${navLinks}<a class="header-phone" href="${phoneHref}">${escape(data.phone)}</a></nav>
 <details class="mobile-menu"><summary>Меню <span class="menu-icon" aria-hidden="true">☰</span></summary><nav aria-label="Мобильная навигация">${navLinks}<a href="#faq">Вопросы об уборке</a><a href="${phoneHref}">${escape(data.phone)}</a></nav></details>
 </header></div>
@@ -74,13 +74,15 @@ await mkdir(new URL('assets/', out), { recursive:true });
 await mkdir(new URL('review/', root), { recursive:true });
 const css = await readFile(new URL('assets/site.css', root), 'utf8');
 const js = await readFile(new URL('assets/site.js', root), 'utf8');
-const clientLogo = await readFile(new URL('assets/client-logo.jpg', root));
-let portable = html.replace('<link rel="stylesheet" href="./assets/site.css">', `<style>${css}</style>`).replace('<script src="./assets/site.js" defer></script>', `<script>${js}</script>`).replaceAll('./assets/client-logo.jpg', `data:image/jpeg;base64,${clientLogo.toString('base64')}`);
+const clientLogo = await readFile(new URL('assets/client-logo-transparent.png', root));
+const favicon = await readFile(new URL('assets/favicon.svg', root));
+let portable = html.replace('<link rel="stylesheet" href="./assets/site.css">', `<style>${css}</style>`).replace('<script src="./assets/site.js" defer></script>', `<script>${js}</script>`).replaceAll('./assets/client-logo-transparent.png', `data:image/png;base64,${clientLogo.toString('base64')}`).replaceAll('./assets/favicon.svg', `data:image/svg+xml;base64,${favicon.toString('base64')}`);
 await Promise.all([
   writeFile(new URL('index.html', out), html),
   writeFile(new URL('assets/site.css', out), css),
   writeFile(new URL('assets/site.js', out), js),
-  writeFile(new URL('assets/client-logo.jpg', out), clientLogo),
+  writeFile(new URL('assets/client-logo-transparent.png', out), clientLogo),
+  writeFile(new URL('assets/favicon.svg', out), favicon),
   writeFile(new URL('preview.html', out), portable),
   writeFile(new URL('review/preview.html', root), portable),
   writeFile(new URL('review/README.txt', root), 'НавитЭко · версия для согласования\nОткройте preview.html в браузере. Страница автономна: услуги, цены, отзывы, телефон и личный Telegram.\n'),

@@ -2,9 +2,9 @@
 
 ## Опубликованный макет
 
-21.09.2026 создан отдельный бакет `clining-preview-bogdasovandrej-20260920` со стандартным хранилищем и лимитом 1 ГБ. Публично только чтение объектов; чтение списка и настроек требует авторизации. 25.09 файл обновлён до зелёной версии с логотипом заказчицы в шапке, размером около 81 КБ:
+21.09.2026 создан отдельный бакет `clining-preview-bogdasovandrej-20260920` со стандартным хранилищем и лимитом 1 ГБ. Публично только чтение объектов; чтение списка и настроек требует авторизации. 25.09 файл обновлён: логотип заказчицы в шапке без подложки, отдельная контрастная иконка вкладки. Размер около 747 КБ:
 
-[https://storage.yandexcloud.net/clining-preview-bogdasovandrej-20260920/preview.html?v=20260925-direct](https://storage.yandexcloud.net/clining-preview-bogdasovandrej-20260920/preview.html?v=20260925-direct)
+[https://storage.yandexcloud.net/clining-preview-bogdasovandrej-20260920/preview.html?v=20260925-logo-clean](https://storage.yandexcloud.net/clining-preview-bogdasovandrej-20260920/preview.html?v=20260925-logo-clean)
 
 Страница позволяет позвонить по рабочему номеру или написать в личный Telegram по номеру; формы сбора персональных данных и ботов нет. API на этот бакет автоматически не выкладывается.
 

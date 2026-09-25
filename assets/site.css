@@ -14,7 +14,7 @@ dialog{border:0;border-radius:18px;padding:0;color:var(--ink);background:var(--p
 /* Client-approved direction: a quiet green palette and the supplied logo. */
 :root{--blue:#347847;--ink:#203e2a;--line:#d9e5d9;--muted:#4b6050;--paper:#fbfcf9;color:var(--ink);background:var(--paper)}
 ::selection{background:#dcebd8;color:#203e2a}
-.brand img{width:68px;height:68px;object-fit:contain;mix-blend-mode:multiply;flex-shrink:0}
+.brand img{width:68px;height:68px;object-fit:contain;flex-shrink:0}
 .section-heading-simple{grid-template-columns:1fr}
 .button:hover{background:#255f36}.button-outline:hover{background:#e9f3e9}.service-card:hover{border-color:#94ba98}
 .process-section{background:#edf4eb}.directory-link small{color:#e3efe2}.contact-panel .eyebrow{color:#c8e6ce}.contact-panel p{color:#e0e9df}.contact-phone:hover{color:#d3edda}.contact-panel .button:hover{background:#e4f1e6}

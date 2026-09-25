@@ -44,13 +44,14 @@ for (const page of [html, portable]) {
   assert.ok(!/Telegram-бота|MAX-бота|свободного времени в календаре на сайте нет|Отзывы с присланных скриншотов Авито/.test(page), 'Rejected text and bot placeholders must stay removed');
   assert.ok(!/USERNAME|example\.(ru|invalid)|Самозанятая специалистка|После подтверждения внесу запись в календарь|Работаю ежедневно|Выезжаю во все районы/.test(page));
   for (const [,href] of page.matchAll(/href="([^"]+)"/g)) {
-    assert.ok(href.startsWith('#') || href.startsWith('./assets/') || href.startsWith('data:image/jpeg;') || href === 'tel:+79920070181' || href === 'https://t.me/+79920070181', `Unexpected link: ${href.slice(0, 100)}`);
+    assert.ok(href.startsWith('#') || href.startsWith('./assets/') || href.startsWith('data:image/svg+xml;') || href === 'tel:+79920070181' || href === 'https://t.me/+79920070181', `Unexpected link: ${href.slice(0, 100)}`);
   }
 }
 assert.ok(!/src="\.\/|rel="stylesheet"|<script[^>]*src=|url\(https?:/.test(portable), 'Preview must not depend on remote assets');
-assert.equal((portable.match(/data:image\/jpeg;base64,/g) || []).length, 2, 'Client logo must appear in the header and favicon');
+assert.equal((portable.match(/data:image\/png;base64,/g) || []).length, 1, 'Transparent client logo must appear in the header');
+assert.equal((portable.match(/data:image\/svg\+xml;base64,/g) || []).length, 1, 'Favicon must remain sharp and separate');
 assert.ok(portable.includes('--blue:#347847'), 'Green palette must remain in the client preview');
-assert.ok(Buffer.byteLength(portable) < 250_000, 'Portable preview exceeded size budget');
+assert.ok(Buffer.byteLength(portable) < 1_000_000, 'Portable preview exceeded size budget');
 assert.equal(portable, await readFile(new URL('dist/preview.html', root), 'utf8'));
 const js = await readFile(new URL('assets/site.js', root), 'utf8');
 assert.ok(!/fetch\(|XMLHttpRequest|localStorage|document\.cookie|innerHTML\s*=|eval\(/.test(js), 'Unexpected network, persistence or unsafe HTML');
