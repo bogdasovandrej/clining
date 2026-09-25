@@ -28,11 +28,16 @@ for (const service of data.services) {
   assert.ok(html.includes(service.name), `${service.name} missing from site`);
 }
 for (const page of [html, portable]) {
-  assert.ok(page.includes("500 ₽/час"));
-  assert.ok(page.includes("Стоимость по запросу"));
+  assert.ok(page.includes("500 ₽ за час"));
+  assert.ok(page.includes("Стоимость услуги «Мастер на час» уточняйте по телефону."));
+  assert.match(page, /<h3>Мастер на час<\/h3>\s*<p class="service-note">/, "Master hourly service must not display an invented price");
   assert.ok(page.includes('href="tel:+79920070181"'));
-  assert.ok(page.includes("Самозанятая специалистка"));
-  assert.ok(page.includes("послестроительной приедем на осмотр"));
+  assert.ok(page.includes('href="https://t.me/+79920070181"'));
+  assert.ok(!page.includes("Самозанятая специалистка"));
+  assert.ok(page.includes("послестроительной приеду на осмотр"));
+  assert.ok(page.includes("Позвоните или напишите"));
+  assert.ok(page.includes('aria-disabled="true">Запись через Telegram-бота · скоро'));
+  assert.ok(page.includes('aria-disabled="true">Запись через MAX-бота · скоро'));
   assert.ok(!/USERNAME|example\.(ru|invalid)|Демонстрационный режим|Концепция 01|Иллюстрация интерьера|· ИИ|Telegram \+ MAX · скоро|Отзывы клиентов|name="name"|name="phone"/i.test(page));
 }
 assert.ok(!/src="\.\/|rel="stylesheet"/.test(portable), "Public preview must be self-contained");
