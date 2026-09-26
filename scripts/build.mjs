@@ -47,7 +47,7 @@ const html = `<!doctype html>
 </header></div>
 <main id="main">
 <section class="hero container" aria-labelledby="hero-title"><div>
-<img class="hero-logo" src="./assets/client-logo-transparent.png" width="132" height="132" alt="Логотип НавитЭко">
+<img class="hero-logo" src="./assets/client-logo-transparent.png" width="200" height="200" alt="Логотип НавитЭко">
 <p class="eyebrow">Екатеринбург</p><h1 id="hero-title">Уборка квартир<br>и <em>химчистка<br>мебели</em></h1>
 <p class="hero-lead">Поддерживающая и генеральная уборка, уборка после ремонта и помощь по дому. Ежедневно с 8:00 до 20:00.</p>
 <div class="hero-actions"><a class="button" href="#services" data-category-link="all">Услуги и цены ${arrow}</a><a class="text-link" href="${phoneHref}">Позвонить ${arrow}</a></div>
