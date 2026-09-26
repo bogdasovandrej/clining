@@ -14,10 +14,10 @@ dialog{border:0;border-radius:18px;padding:0;color:var(--ink);background:var(--p
 /* Client-approved direction: a quiet green palette and the supplied logo. */
 :root{--blue:#347847;--ink:#203e2a;--line:#d9e5d9;--muted:#4b6050;--paper:#fbfcf9;color:var(--ink);background:var(--paper)}
 ::selection{background:#dcebd8;color:#203e2a}
-.brand img{width:68px;height:68px;object-fit:contain;flex-shrink:0}
+.hero-logo{display:block;width:132px;height:132px;object-fit:contain;margin:0 0 20px;background:transparent}
 .section-heading-simple{grid-template-columns:1fr}
 .button:hover{background:#255f36}.button-outline:hover{background:#e9f3e9}.service-card:hover{border-color:#94ba98}
 .process-section{background:#edf4eb}.directory-link small{color:#e3efe2}.contact-panel .eyebrow{color:#c8e6ce}.contact-panel p{color:#e0e9df}.contact-phone:hover{color:#d3edda}.contact-panel .button:hover{background:#e4f1e6}
 .mobile-menu nav{box-shadow:0 12px 20px #203e2a10}
-@media(max-width:760px){.brand img{width:54px;height:54px}.brand{gap:5px;font-size:21px}}
-@media(max-width:480px){.brand img{width:50px;height:50px}.brand{font-size:20px}}
+@media(max-width:760px){.hero-logo{width:112px;height:112px;margin-bottom:18px}.brand{gap:5px;font-size:21px}}
+@media(max-width:480px){.hero-logo{width:104px;height:104px;margin-bottom:16px}.hero{padding-top:24px}.brand{font-size:20px}}

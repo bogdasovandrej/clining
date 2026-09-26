@@ -41,12 +41,13 @@ const html = `<!doctype html>
 </head><body>
 <a class="skip-link" href="#main">К содержанию</a>
 <div class="header-wrap"><header class="site-header container">
-<a class="brand" href="#main" aria-label="НавитЭко — на главную"><img src="./assets/client-logo-transparent.png" width="68" height="68" alt=""><span>НавитЭко</span></a>
+<a class="brand" href="#main" aria-label="НавитЭко — на главную"><span>НавитЭко</span></a>
 <nav class="desktop-nav" aria-label="Основная навигация">${navLinks}<a class="header-phone" href="${phoneHref}">${escape(data.phone)}</a></nav>
 <details class="mobile-menu"><summary>Меню <span class="menu-icon" aria-hidden="true">☰</span></summary><nav aria-label="Мобильная навигация">${navLinks}<a href="#faq">Вопросы об уборке</a><a href="${phoneHref}">${escape(data.phone)}</a></nav></details>
 </header></div>
 <main id="main">
 <section class="hero container" aria-labelledby="hero-title"><div>
+<img class="hero-logo" src="./assets/client-logo-transparent.png" width="132" height="132" alt="Логотип НавитЭко">
 <p class="eyebrow">Екатеринбург</p><h1 id="hero-title">Уборка квартир<br>и <em>химчистка<br>мебели</em></h1>
 <p class="hero-lead">Поддерживающая и генеральная уборка, уборка после ремонта и помощь по дому. Ежедневно с 8:00 до 20:00.</p>
 <div class="hero-actions"><a class="button" href="#services" data-category-link="all">Услуги и цены ${arrow}</a><a class="text-link" href="${phoneHref}">Позвонить ${arrow}</a></div>

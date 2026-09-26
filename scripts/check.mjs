@@ -50,7 +50,9 @@ for (const page of [html, portable]) {
   }
 }
 assert.ok(!/src="\.\/|rel="stylesheet"|<script[^>]*src=|url\(https?:/.test(portable), 'Preview must not depend on remote assets');
-assert.equal((portable.match(/data:image\/png;base64,/g) || []).length, 1, 'Transparent client logo must appear in the header');
+assert.equal((portable.match(/data:image\/png;base64,/g) || []).length, 1, 'Client logo must appear once');
+assert.ok(/<img class="hero-logo"[^>]+>[\s\S]*?<h1 id="hero-title">/.test(html), 'Client logo must precede the main headline');
+assert.ok(!html.match(/<a class="brand"[^>]*>[\s\S]*?<\/a>/)?.[0].includes('<img'), 'Do not duplicate the logo in the header');
 assert.equal((portable.match(/data:image\/svg\+xml;base64,/g) || []).length, 1, 'Favicon must remain sharp and separate');
 assert.ok(portable.includes('--blue:#347847'), 'Green palette must remain in the client preview');
 assert.ok(Buffer.byteLength(portable) < 1_000_000, 'Portable preview exceeded size budget');
