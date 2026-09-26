@@ -39,5 +39,6 @@ jobs:
           test -n "$AWS_SECRET_ACCESS_KEY" || { echo 'YC_SECRET_ACCESS_KEY is required'; exit 1; }
           [[ "$YC_BUCKET" =~ ^[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]$ ]] || { echo 'Set YC_BUCKET to a valid bucket name'; exit 1; }
           aws configure set default.s3.addressing_style path
-          aws --endpoint-url=https://storage.yandexcloud.net s3 cp dist/ "s3://$YC_BUCKET/" --recursive --exclude 'index.html' --cache-control 'no-cache' --only-show-errors
-          aws --endpoint-url=https://storage.yandexcloud.net s3 cp dist/index.html "s3://$YC_BUCKET/index.html" --content-type 'text/html; charset=utf-8' --cache-control 'no-cache' --only-show-errors
+          aws --endpoint-url=https://storage.yandexcloud.net s3 cp dist/robots.txt "s3://$YC_BUCKET/robots.txt" --content-type 'text/plain; charset=utf-8' --cache-control 'no-cache' --only-show-errors
+          aws --endpoint-url=https://storage.yandexcloud.net s3 cp dist/sitemap.xml "s3://$YC_BUCKET/sitemap.xml" --content-type 'application/xml; charset=utf-8' --cache-control 'no-cache' --only-show-errors
+          aws --endpoint-url=https://storage.yandexcloud.net s3 cp dist/standalone/index.html "s3://$YC_BUCKET/index.html" --content-type 'text/html; charset=utf-8' --cache-control 'no-cache' --only-show-errors

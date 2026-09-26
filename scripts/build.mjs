@@ -75,6 +75,7 @@ const html = `<!doctype html>
 </body></html>`;
 
 await mkdir(new URL('assets/', out), { recursive:true });
+await mkdir(new URL('standalone/', out), { recursive:true });
 await mkdir(new URL('review/', root), { recursive:true });
 const css = await readFile(new URL('assets/site.css', root), 'utf8');
 const js = await readFile(new URL('assets/site.js', root), 'utf8');
@@ -88,6 +89,7 @@ await Promise.all([
   writeFile(new URL('assets/client-logo-transparent.png', out), clientLogo),
   writeFile(new URL('assets/favicon.svg', out), favicon),
   writeFile(new URL('preview.html', out), portable),
+  writeFile(new URL('standalone/index.html', out), portable),
   writeFile(new URL('review/preview.html', root), portable),
   writeFile(new URL('review/README.txt', root), 'НавитЭко · версия для согласования\nОткройте preview.html в браузере. Страница автономна: услуги, цены, отзывы, телефон и личный Telegram.\n'),
   writeFile(new URL('robots.txt', out), publicSite ? `User-agent: *\nAllow: /\nSitemap: ${siteUrl}/sitemap.xml\n` : 'User-agent: *\nDisallow: /\n'),

@@ -55,6 +55,7 @@ assert.equal((portable.match(/data:image\/svg\+xml;base64,/g) || []).length, 1, 
 assert.ok(portable.includes('--blue:#347847'), 'Green palette must remain in the client preview');
 assert.ok(Buffer.byteLength(portable) < 1_000_000, 'Portable preview exceeded size budget');
 assert.equal(portable, await readFile(new URL('dist/preview.html', root), 'utf8'));
+assert.equal(portable, await readFile(new URL('dist/standalone/index.html', root), 'utf8'));
 const robots = await readFile(new URL('dist/robots.txt', root), 'utf8');
 const sitemap = await readFile(new URL('dist/sitemap.xml', root), 'utf8');
 if (publicSite) {
