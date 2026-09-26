@@ -2,9 +2,11 @@
 
 Статус на 26.09.2026: `naviteco.ru` зарегистрирован до 25.09.2027. Пользователь подтвердил юридические предпосылки и разрешил индексацию. Production-бакет `naviteco.ru` создан, хостинг `index.html` включён, загружены `index.html`, `robots.txt` и `sitemap.xml`. Публичный HTML проверен: HTTP 200, без `noindex`, canonical на `https://naviteco.ru/`. Подключение DNS, HTTPS и Яндекс Вебмастера пока не завершено; домен ещё не объявлен работающим.
 
-Для DNS пользователь выбрал Cloudflare Free, DNS only, и разрешил смену NS в Рег.ру. Платная зона Yandex Cloud DNS не создавалась. Требуется вход пользователя в Cloudflare и Рег.ру.
+Для DNS пользователь выбрал Cloudflare Free, DNS only, и разрешил смену NS в Рег.ру. Платная зона Yandex Cloud DNS не создавалась. Вход выполнен. Рег.ру подтвердил сохранение NS `damiete.ns.cloudflare.com` и `stephane.ns.cloudflare.com`; Cloudflare ожидает обновления делегирования. Проверка DNS-over-HTTPS пока возвращает старые NS Рег.ру — релиз на собственном домене ещё не завершён.
 
-В Certificate Manager создан запрос `naviteco-ru`, ID `fpqp3nl9r9o24ii04pe9`, для `naviteco.ru`; статус `Validating`. Для автоматической проверки и продления требуется DNS-only CNAME `_acme-challenge` → `fpqp3nl9r9o24ii04pe9.cm.yandexcloud.net`. Запись ещё не добавлена. Не создавать одновременно TXT и CNAME на этом имени.
+В Certificate Manager создан запрос `naviteco-ru`, ID `fpqp3nl9r9o24ii04pe9`, для `naviteco.ru`; статус `Validating`. В Cloudflare сохранены DNS-only CNAME `@` → `naviteco.ru.website.yandexcloud.net` и `_acme-challenge` → `fpqp3nl9r9o24ii04pe9.cm.yandexcloud.net`. Последняя запись нужна для автоматической проверки и продления сертификата; её не удалять и не включать прокси. Не создавать одновременно TXT и CNAME на этом имени.
+
+`https://naviteco.ru/` добавлен в Яндекс Вебмастер. В Cloudflare сохранён TXT `@` → `yandex-verification: b2d9e6fa35d36dd5`. Подтверждение владения и отправка sitemap ещё не выполнены: сначала дождаться делегирования и подключить выпущенный сертификат к бакету.
 
 1. Домен куплен. Перед окончанием срока владелец проверяет стоимость и порядок продления в Рег.ру.
 2. До открытия индексации Елена подтверждает право на публикацию отзывов, фактическую услугу озонирования, статус НПД и порядок обработки клиентских данных. Согласовать оператора персональных данных и уведомление РКН. Не выставлять `legalReviewApproved: true` лишь ради прохождения сборки.
