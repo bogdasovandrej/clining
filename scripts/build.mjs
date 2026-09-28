@@ -14,7 +14,7 @@ const telegramHref = `https://t.me/+${data.phone.replace(/\D/g, '')}`;
 const arrow = '<span class="arrow" aria-hidden="true">↗</span>';
 const plus = '<span class="expand-icon" aria-hidden="true"></span>';
 const category = service => service.slug.startsWith('himchistka') ? 'furniture' : ['master-na-chas', 'ozonirovanie', 'glazhka'].includes(service.slug) ? 'other' : 'home';
-const price = service => service.price === null ? '<span class="price price-on-request">Стоимость по телефону</span>' : `<span class="price">${service.unit === '₽/час' ? `${money(service.price)} ₽ за час` : `от ${money(service.price)} ₽`}</span>`;
+const price = service => service.price === null ? '' : `<span class="price">${service.unit === '₽/час' ? `${money(service.price)} ₽ за час` : `от ${money(service.price)} ₽`}</span>`;
 const cards = data.services.map(service => `<article class="service-card" data-category="${category(service)}" id="${escape(service.slug)}"><h3>${escape(service.name)}</h3>${price(service)}${service.price === null ? '<p class="service-note">Стоимость услуги «Мастер на час» уточняйте по телефону.</p>' : ''}</article>`).join('\n');
 const reviews = [
   { quote:'Ответила быстро. Всё выполнено быстро и отлично, работой осталась довольна.', name:'Ольга', date:'август 2025' },
@@ -47,7 +47,7 @@ const html = `<!doctype html>
 </header></div>
 <main id="main">
 <section class="hero container" aria-labelledby="hero-title"><div>
-<img class="hero-logo" src="./assets/client-logo-transparent.png" width="400" height="400" alt="Логотип НавитЭко">
+<img class="hero-logo" src="./assets/client-logo-optimized.webp" width="400" height="400" alt="Логотип НавитЭко">
 <p class="eyebrow">Екатеринбург</p><h1 id="hero-title">Уборка квартир<br>и <em>химчистка<br>мебели</em></h1>
 <p class="hero-lead">Поддерживающая и генеральная уборка, уборка после ремонта и помощь по дому. Ежедневно с 8:00 до 20:00.</p>
 <div class="hero-actions"><a class="button" href="#services" data-category-link="all">Услуги и цены ${arrow}</a><a class="text-link" href="${phoneHref}">Позвонить ${arrow}</a></div>
@@ -62,7 +62,7 @@ const html = `<!doctype html>
 <section class="section container" id="services" aria-labelledby="services-title">
 <div class="section-heading"><div><p class="eyebrow">Услуги и цены</p><h2 id="services-title">Чем могу помочь</h2></div><p>Цены с «от» — стартовые. Стоимость рассчитаю по фото или после предварительного осмотра объекта.</p></div>
 <div class="service-toolbar" hidden><div class="filters" role="group" aria-label="Категории услуг"><button type="button" class="active" data-filter="all" aria-pressed="true" aria-controls="service-list">Все услуги</button><button type="button" data-filter="home" aria-pressed="false" aria-controls="service-list">Уборка и дом</button><button type="button" data-filter="furniture" aria-pressed="false" aria-controls="service-list">Химчистка</button><button type="button" data-filter="other" aria-pressed="false" aria-controls="service-list">Другие услуги</button></div><p class="service-count" id="service-count" role="status" aria-live="polite">Показано: ${data.services.length} из ${data.services.length}</p></div>
-<div class="service-grid" id="service-list">${cards}</div><p class="note">Точный перечень работ и стоимость согласую перед заказом. Для услуги «Мастер на час» цену уточняйте по телефону.</p>
+<div class="service-grid" id="service-list">${cards}</div><p class="note">Точный перечень работ и стоимость согласую перед заказом.</p>
 </section>
 <section class="section process-section" id="how" aria-labelledby="how-title"><div class="container"><p class="eyebrow">Как записаться</p><h2 id="how-title">Позвоните или напишите</h2><div class="steps"><div><h3>Расскажите о задаче</h3><p>Какая услуга нужна, в каком районе и на какую дату. Если есть фото, приложите их к сообщению.</p></div><div><h3>Обсудим объём работы</h3><p>Стоимость рассчитаю по фото или после предварительного осмотра объекта.</p></div><div><h3>Подтвержу дату и цену</h3><p>Согласую стоимость и время. Желаемая дата не считается забронированной до подтверждения.</p></div></div><div class="contact-actions"><a class="button" href="${phoneHref}">Позвонить ${escape(data.phone)}</a><a class="button button-outline" href="${telegramHref}" target="_blank" rel="noopener noreferrer">Написать в Telegram ${arrow}</a></div></div></section>
 <section class="section container faq-layout" id="faq" aria-labelledby="faq-title"><div><p class="eyebrow">Перед заказом</p><h2 id="faq-title">Вопросы<br>об уборке</h2></div><div>${faq}</div></section>
@@ -80,17 +80,19 @@ await mkdir(new URL('standalone/', out), { recursive:true });
 await mkdir(new URL('review/', root), { recursive:true });
 const css = await readFile(new URL('assets/site.css', root), 'utf8');
 const js = await readFile(new URL('assets/site.js', root), 'utf8');
-const clientLogo = await readFile(new URL('assets/client-logo-transparent.png', root));
+const clientLogo = await readFile(new URL('assets/client-logo-optimized.webp', root));
 const favicon = await readFile(new URL('assets/favicon.svg', root));
-let portable = html.replace('<link rel="stylesheet" href="./assets/site.css">', `<style>${css}</style>`).replace('<script src="./assets/site.js" defer></script>', `<script>${js}</script>`).replaceAll('./assets/client-logo-transparent.png', `data:image/png;base64,${clientLogo.toString('base64')}`).replaceAll('./assets/favicon.svg', `data:image/svg+xml;base64,${favicon.toString('base64')}`);
+let portable = html.replace('<link rel="stylesheet" href="./assets/site.css">', `<style>${css}</style>`).replace('<script src="./assets/site.js" defer></script>', `<script>${js}</script>`).replaceAll('./assets/client-logo-optimized.webp', `data:image/webp;base64,${clientLogo.toString('base64')}`).replaceAll('./assets/favicon.svg', `data:image/svg+xml;base64,${favicon.toString('base64')}`);
+const productionHtml = portable.replace(`href="data:image/svg+xml;base64,${favicon.toString('base64')}"`, 'href="/favicon.svg"');
 await Promise.all([
   writeFile(new URL('index.html', out), html),
   writeFile(new URL('assets/site.css', out), css),
   writeFile(new URL('assets/site.js', out), js),
-  writeFile(new URL('assets/client-logo-transparent.png', out), clientLogo),
+  writeFile(new URL('assets/client-logo-optimized.webp', out), clientLogo),
   writeFile(new URL('assets/favicon.svg', out), favicon),
+  writeFile(new URL('favicon.svg', out), favicon),
   writeFile(new URL('preview.html', out), portable),
-  writeFile(new URL('standalone/index.html', out), portable),
+  writeFile(new URL('standalone/index.html', out), productionHtml),
   writeFile(new URL('review/preview.html', root), portable),
   writeFile(new URL('review/README.txt', root), 'НавитЭко · версия для согласования\nОткройте preview.html в браузере. Страница автономна: услуги, цены, отзывы, телефон и личный Telegram.\n'),
   writeFile(new URL('robots.txt', out), publicSite ? `User-agent: *\nAllow: /\nSitemap: ${siteUrl}/sitemap.xml\n` : 'User-agent: *\nDisallow: /\n'),
