@@ -50,21 +50,23 @@ for (const page of [html, portable, productionHtml]) {
   assert.ok(!/Telegram-бота|MAX-бота|свободного времени в календаре на сайте нет|Отзывы с присланных скриншотов Авито/.test(page), 'Rejected text and bot placeholders must stay removed');
   assert.ok(!/USERNAME|example\.(ru|invalid)|Самозанятая специалистка|После подтверждения внесу запись в календарь|Работаю ежедневно|Выезжаю во все районы/.test(page));
   for (const [,href] of page.matchAll(/href="([^"]+)"/g)) {
-    assert.ok(href.startsWith('#') || href.startsWith('./assets/') || href.startsWith('data:image/svg+xml;') || href === '/favicon.svg' || (publicSite && href === new URL('/', data.siteUrl).href) || href === 'tel:+79920070181' || href === 'https://t.me/+79920070181', `Unexpected link: ${href.slice(0, 100)}`);
+    assert.ok(href.startsWith('#') || href.startsWith('./assets/') || href.startsWith('data:image/png;') || href === '/favicon.png?v=20260928-png' || (publicSite && href === new URL('/', data.siteUrl).href) || href === 'tel:+79920070181' || href === 'https://t.me/+79920070181', `Unexpected link: ${href.slice(0, 100)}`);
   }
 }
 assert.ok(!/src="\.\/|rel="stylesheet"|<script[^>]*src=|url\(https?:/.test(portable), 'Preview must not depend on remote assets');
 assert.equal((portable.match(/data:image\/webp;base64,/g) || []).length, 1, 'Client logo must appear once');
 assert.ok(/<img class="hero-logo"[^>]+>[\s\S]*?<h1 id="hero-title">/.test(html), 'Client logo must precede the main headline');
 assert.ok(!html.match(/<a class="brand"[^>]*>[\s\S]*?<\/a>/)?.[0].includes('<img'), 'Do not duplicate the logo in the header');
-assert.equal((portable.match(/data:image\/svg\+xml;base64,/g) || []).length, 1, 'Favicon must remain sharp and separate');
+assert.equal((portable.match(/data:image\/png;base64,/g) || []).length, 1, 'Portable favicon must be embedded once');
 assert.ok(portable.includes('--blue:#347847'), 'Green palette must remain in the client preview');
 assert.ok(Buffer.byteLength(portable) < 250_000, 'Portable preview exceeded size budget');
 assert.equal(portable, await readFile(new URL('dist/preview.html', root), 'utf8'));
-assert.ok(productionHtml.includes('href="/favicon.svg"'), 'Production favicon must be crawlable');
-assert.ok(!productionHtml.includes('href="data:image/svg+xml;base64,'), 'Production favicon must not be embedded');
+assert.ok(productionHtml.includes('href="/favicon.png?v=20260928-png"'), 'Production favicon must be crawlable and cache-busted');
+assert.ok(!productionHtml.includes('href="data:image/png;base64,'), 'Production favicon must not be embedded');
 assert.ok(Buffer.byteLength(productionHtml) < 250_000, 'Production HTML exceeded size budget');
-assert.equal(await readFile(new URL('dist/favicon.svg', root), 'utf8'), await readFile(new URL('assets/favicon.svg', root), 'utf8'));
+for (const format of ['png', 'ico', 'svg']) {
+  assert.deepEqual(await readFile(new URL(`dist/favicon.${format}`, root)), await readFile(new URL(`assets/favicon.${format}`, root)));
+}
 const robots = await readFile(new URL('dist/robots.txt', root), 'utf8');
 const sitemap = await readFile(new URL('dist/sitemap.xml', root), 'utf8');
 if (publicSite) {

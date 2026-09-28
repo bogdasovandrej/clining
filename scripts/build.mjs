@@ -37,7 +37,7 @@ const html = `<!doctype html>
 <meta name="description" content="Уборка квартир и химчистка мебели в Екатеринбурге. НавитЭко: услуги, цены, отзывы и запись по телефону. Ежедневно, 8:00–20:00.">
 <meta property="og:type" content="website"><meta property="og:locale" content="ru_RU"><meta property="og:title" content="НавитЭко — уборка и химчистка в Екатеринбурге"><meta property="og:description" content="Услуги, цены, отзывы и запись по телефону. Ежедневно, 8:00–20:00.">
 <title>НавитЭко — уборка и химчистка в Екатеринбурге</title>
-<link rel="icon" href="./assets/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="./assets/site.css">
+<link rel="icon" href="./assets/favicon.png" type="image/png" sizes="120x120"><link rel="stylesheet" href="./assets/site.css">
 </head><body>
 <a class="skip-link" href="#main">К содержанию</a>
 <div class="header-wrap"><header class="site-header container">
@@ -81,16 +81,21 @@ await mkdir(new URL('review/', root), { recursive:true });
 const css = await readFile(new URL('assets/site.css', root), 'utf8');
 const js = await readFile(new URL('assets/site.js', root), 'utf8');
 const clientLogo = await readFile(new URL('assets/client-logo-optimized.webp', root));
-const favicon = await readFile(new URL('assets/favicon.svg', root));
-let portable = html.replace('<link rel="stylesheet" href="./assets/site.css">', `<style>${css}</style>`).replace('<script src="./assets/site.js" defer></script>', `<script>${js}</script>`).replaceAll('./assets/client-logo-optimized.webp', `data:image/webp;base64,${clientLogo.toString('base64')}`).replaceAll('./assets/favicon.svg', `data:image/svg+xml;base64,${favicon.toString('base64')}`);
-const productionHtml = portable.replace(`href="data:image/svg+xml;base64,${favicon.toString('base64')}"`, 'href="/favicon.svg"');
+const favicon = await readFile(new URL('assets/favicon.png', root));
+const faviconIco = await readFile(new URL('assets/favicon.ico', root));
+const faviconSvg = await readFile(new URL('assets/favicon.svg', root));
+let portable = html.replace('<link rel="stylesheet" href="./assets/site.css">', `<style>${css}</style>`).replace('<script src="./assets/site.js" defer></script>', `<script>${js}</script>`).replaceAll('./assets/client-logo-optimized.webp', `data:image/webp;base64,${clientLogo.toString('base64')}`).replaceAll('./assets/favicon.png', `data:image/png;base64,${favicon.toString('base64')}`);
+const productionHtml = portable.replace(`href="data:image/png;base64,${favicon.toString('base64')}"`, 'href="/favicon.png?v=20260928-png"');
 await Promise.all([
   writeFile(new URL('index.html', out), html),
   writeFile(new URL('assets/site.css', out), css),
   writeFile(new URL('assets/site.js', out), js),
   writeFile(new URL('assets/client-logo-optimized.webp', out), clientLogo),
-  writeFile(new URL('assets/favicon.svg', out), favicon),
-  writeFile(new URL('favicon.svg', out), favicon),
+  writeFile(new URL('assets/favicon.png', out), favicon),
+  writeFile(new URL('assets/favicon.svg', out), faviconSvg),
+  writeFile(new URL('favicon.png', out), favicon),
+  writeFile(new URL('favicon.ico', out), faviconIco),
+  writeFile(new URL('favicon.svg', out), faviconSvg),
   writeFile(new URL('preview.html', out), portable),
   writeFile(new URL('standalone/index.html', out), productionHtml),
   writeFile(new URL('review/preview.html', root), portable),

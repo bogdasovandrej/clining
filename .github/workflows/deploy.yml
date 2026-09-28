@@ -42,4 +42,6 @@ jobs:
           aws --endpoint-url=https://storage.yandexcloud.net s3 cp dist/robots.txt "s3://$YC_BUCKET/robots.txt" --content-type 'text/plain; charset=utf-8' --cache-control 'no-cache' --only-show-errors
           aws --endpoint-url=https://storage.yandexcloud.net s3 cp dist/sitemap.xml "s3://$YC_BUCKET/sitemap.xml" --content-type 'application/xml; charset=utf-8' --cache-control 'no-cache' --only-show-errors
           aws --endpoint-url=https://storage.yandexcloud.net s3 cp dist/favicon.svg "s3://$YC_BUCKET/favicon.svg" --content-type 'image/svg+xml' --cache-control 'public, max-age=86400' --only-show-errors
+          aws --endpoint-url=https://storage.yandexcloud.net s3 cp dist/favicon.png "s3://$YC_BUCKET/favicon.png" --content-type 'image/png' --cache-control 'public, max-age=86400' --only-show-errors
+          aws --endpoint-url=https://storage.yandexcloud.net s3 cp dist/favicon.ico "s3://$YC_BUCKET/favicon.ico" --content-type 'image/x-icon' --cache-control 'public, max-age=86400' --only-show-errors
           aws --endpoint-url=https://storage.yandexcloud.net s3 cp dist/standalone/index.html "s3://$YC_BUCKET/index.html" --content-type 'text/html; charset=utf-8' --cache-control 'no-cache' --only-show-errors
