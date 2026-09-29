@@ -21,3 +21,4 @@ dialog{border:0;border-radius:18px;padding:0;color:var(--ink);background:var(--p
 .mobile-menu nav{box-shadow:0 12px 20px #203e2a10}
 @media(max-width:760px){.hero-logo{width:360px;margin-bottom:18px}.brand{gap:5px;font-size:21px}}
 @media(max-width:480px){.hero-logo{width:336px;margin-bottom:16px}.hero{padding-top:24px}.brand{font-size:20px}}
+.service-card-action{display:inline-flex;align-items:center;gap:6px;margin-top:14px;color:var(--blue);font-size:12px;font-weight:700}.service-card:hover .service-card-action{text-decoration:underline;text-underline-offset:3px}

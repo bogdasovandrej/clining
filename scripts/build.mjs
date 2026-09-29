@@ -15,7 +15,7 @@ const arrow = '<span class="arrow" aria-hidden="true">↗</span>';
 const plus = '<span class="expand-icon" aria-hidden="true"></span>';
 const category = service => service.slug.startsWith('himchistka') ? 'furniture' : ['master-na-chas', 'ozonirovanie', 'glazhka'].includes(service.slug) ? 'other' : 'home';
 const price = service => service.price === null ? '' : `<span class="price">${service.unit === '₽/час' ? `${money(service.price)} ₽ за час` : `от ${money(service.price)} ₽`}</span>`;
-const cards = data.services.map(service => `<article class="service-card" data-category="${category(service)}" id="${escape(service.slug)}"><h3>${escape(service.name)}</h3>${price(service)}${service.price === null ? '<p class="service-note">Стоимость услуги «Мастер на час» уточняйте по телефону.</p>' : ''}</article>`).join('\n');
+const cards = data.services.map(service => `<a class="service-card" href="#contacts" data-category="${category(service)}" id="${escape(service.slug)}"><h3>${escape(service.name)}</h3>${price(service)}${service.price === null ? '<p class="service-note">Стоимость услуги «Мастер на час» уточняйте по телефону.</p>' : ''}<span class="service-card-action">Связаться <span aria-hidden="true">↗</span></span></a>`).join('\n');
 const reviews = [
   { quote:'Ответила быстро. Всё выполнено быстро и отлично, работой осталась довольна.', name:'Ольга', date:'август 2025' },
   { quote:'Большое спасибо Елене за качественную уборку квартиры. Результат очень порадовал.', name:'Ольга', date:'ноябрь 2022' },

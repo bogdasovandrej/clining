@@ -24,7 +24,8 @@ for (const [,id] of html.matchAll(/aria-(?:labelledby|controls)="([^"]+)"/g)) as
 for (const [,src] of html.matchAll(/(?:src|href)="(\.\/assets\/[^"]+)"/g)) await readFile(new URL(src, new URL('dist/', root)));
 assert.equal((html.match(/<h1\b/g) || []).length, 1);
 assert.equal((html.match(/class="service-card"/g) || []).length, 12);
-assert.equal((html.match(/<article class="service-card"/g) || []).length, 12);
+assert.equal((html.match(/<a class="service-card" href="#contacts"/g) || []).length, 12, 'Every service card must lead to direct contacts');
+assert.equal((html.match(/class="service-card-action"/g) || []).length, 12, 'Clickable cards need a visible action');
 assert.equal((html.match(/<figure class="review-card">/g) || []).length, 3);
 assert.ok(!/<details class="service-card"|id="work"|class="photo-dialog"/.test(html), 'Rejected accordion and photo gallery must stay removed');
 assert.ok(!/\b0[1-4] \/ (?:Услуги|Фото|Как|Перед)/.test(html), 'Section numbering must stay removed');
@@ -34,7 +35,7 @@ for (const service of data.services) {
   assert.ok(service.description?.length > 10);
   assert.ok(!service.duration && !service.includes, 'Do not publish unconfirmed timing or inclusions');
 }
-const master = html.match(/<article[^>]*id="master-na-chas"[\s\S]*?<\/article>/)?.[0];
+const master = html.match(/<a class="service-card"[^>]*id="master-na-chas"[\s\S]*?<\/a>/)?.[0];
 assert.ok(master && !master.includes('₽'), 'Do not invent a handyman price');
 assert.ok(master && !master.includes('Стоимость по телефону'), 'Do not duplicate the handyman contact note');
 for (const page of [html, portable, productionHtml]) {
